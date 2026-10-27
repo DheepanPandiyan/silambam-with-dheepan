@@ -14,6 +14,7 @@ const accountPanel = document.getElementById("studentAccount");
 const signInButton = document.getElementById("googleSignIn");
 const signOutButton = document.getElementById("googleSignOut");
 const statusMessage = document.getElementById("authStatus");
+const accountStatusMessage = document.getElementById("accountStatus");
 const studentName = document.getElementById("studentName");
 const studentEmail = document.getElementById("studentEmail");
 const studentPhoto = document.getElementById("studentPhoto");
@@ -21,6 +22,8 @@ const studentPhoto = document.getElementById("studentPhoto");
 function setStatus(message, tone = "info") {
     statusMessage.textContent = message;
     statusMessage.dataset.tone = tone;
+    accountStatusMessage.textContent = message;
+    accountStatusMessage.dataset.tone = tone;
 }
 
 function showSignedInUser(user) {
