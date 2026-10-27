@@ -47,16 +47,19 @@ function showSignedOut() {
 }
 
 function describeAuthError(error) {
-    if (error.code === "auth/unauthorized-domain") {
-        return "This website domain is not authorized in Firebase yet.";
+    console.error("Firebase Google sign-in error:", error);
+    const code = typeof error?.code === "string" ? error.code : "unknown";
+    let message = "Google sign-in could not be completed.";
+    if (code === "auth/unauthorized-domain") {
+        message = "This website domain is not authorized in Firebase yet.";
+    } else if (code === "auth/operation-not-allowed") {
+        message = "Google sign-in is not enabled in Firebase Authentication yet.";
+    } else if (code === "auth/network-request-failed") {
+        message = "Could not connect. Check your internet connection and try again.";
+    } else if (code === "auth/invalid-api-key") {
+        message = "The Firebase API key is invalid. Check the web app configuration.";
     }
-    if (error.code === "auth/operation-not-allowed") {
-        return "Google sign-in is not enabled in Firebase Authentication yet.";
-    }
-    if (error.code === "auth/network-request-failed") {
-        return "Could not connect. Check your internet connection and try again.";
-    }
-    return "Google sign-in could not be completed. Please try again.";
+    return `${message} (Error code: ${code})`;
 }
 
 const configured = ["apiKey", "authDomain", "projectId", "appId"].every((key) => {
