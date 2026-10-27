@@ -1,0 +1,126 @@
+.login-prompt-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.76);
+    backdrop-filter: blur(8px);
+}
+.login-prompt-overlay[hidden] {
+    display: none !important;
+}
+.login-prompt-dialog {
+    position: relative;
+    width: min(100%, 470px);
+    padding: clamp(2rem, 6vw, 3rem);
+    border: 1px solid rgba(210, 153, 34, 0.35);
+    border-radius: 24px;
+    background: linear-gradient(145deg, #161b22, #0d1117);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+    text-align: center;
+    animation: loginPromptEnter 0.25s ease-out;
+}
+.login-prompt-close {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.9rem;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 1.75rem;
+    line-height: 1;
+    cursor: pointer;
+}
+.login-prompt-close:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+.login-prompt-icon {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 1.25rem;
+    border-radius: 50%;
+    background: rgba(210, 153, 34, 0.15);
+    color: var(--color-yellow);
+    font-size: 1.5rem;
+}
+.login-prompt-dialog h2 {
+    margin-bottom: 0.75rem;
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.7rem, 4vw, 2.1rem);
+}
+.login-prompt-dialog p {
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+}
+.login-prompt-status {
+    min-height: 1.5em;
+    margin: 0.75rem 0;
+    color: #ff8c86 !important;
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+}
+.login-prompt-status:empty {
+    display: none;
+}
+.login-prompt-google,
+.login-prompt-dismiss {
+    width: 100%;
+    min-height: 50px;
+    border-radius: 12px;
+    font: 600 1rem 'Outfit', sans-serif;
+    cursor: pointer;
+}
+.login-prompt-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    border: 1px solid rgba(230, 237, 243, 0.22);
+    background: #fff;
+    color: #202124;
+}
+.login-prompt-google:hover {
+    background: #f3f3f3;
+}
+.login-prompt-google:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+.login-prompt-google svg {
+    width: 20px;
+    height: 20px;
+}
+.login-prompt-dismiss {
+    margin-top: 0.75rem;
+    border: 1px solid rgba(230, 237, 243, 0.22);
+    background: transparent;
+    color: var(--text-primary);
+}
+.login-prompt-dismiss:hover {
+    border-color: var(--color-yellow);
+    color: var(--color-yellow);
+}
+.login-prompt-dialog :focus-visible {
+    outline: 3px solid var(--color-yellow);
+    outline-offset: 3px;
+}
+body.login-prompt-open {
+    overflow: hidden;
+}
+@keyframes loginPromptEnter {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .login-prompt-dialog {
+        animation: none;
+    }
+}
