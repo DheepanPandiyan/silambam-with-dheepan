@@ -841,3 +841,19 @@ footer {
         grid-template-columns: 1fr;
     }
 }
+
+.catalog-offers {
+    margin-top: 5rem;
+}
+.catalog-offers .courses-subtitle {
+    margin-top: -1.5rem;
+    margin-bottom: 1rem;
+}
+.catalog-offers .course-grid {
+    align-items: stretch;
+}
+@media (max-width: 768px) {
+    .catalog-offers {
+        margin-top: 4rem;
+    }
+}
