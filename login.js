@@ -73,6 +73,7 @@ if (!configured) {
     const googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: "select_account" });
 
+    setStatus("Sign in with your Google account to continue.");
     onAuthStateChanged(auth, (user) => {
         if (user) {
             showSignedInUser(user);
