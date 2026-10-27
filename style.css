@@ -788,3 +788,56 @@ footer {
         scroll-behavior: auto !important;
     }
 }
+
+/* Free course catalog entry */
+.free-course {
+    display: grid;
+    grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+    padding: clamp(1.5rem, 5vw, 3.5rem);
+    background: linear-gradient(145deg, rgba(22, 27, 34, 0.98), rgba(13, 17, 23, 0.98));
+    border: 1px solid rgba(210, 153, 34, 0.25);
+    border-radius: 24px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
+}
+.free-course-badge {
+    display: inline-block;
+    margin-bottom: 1rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 50px;
+    color: #000;
+    background: var(--color-yellow);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.free-course-info h2 {
+    margin-bottom: 1rem;
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.7rem, 3vw, 2.4rem);
+}
+.free-course-info p {
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+}
+.playlist-frame {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    background: #000;
+}
+.playlist-frame iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+@media (max-width: 768px) {
+    .free-course {
+        grid-template-columns: 1fr;
+    }
+}
