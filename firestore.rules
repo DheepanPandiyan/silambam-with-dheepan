@@ -8,7 +8,6 @@ service cloud.firestore {
 
     function isApprovedStudent() {
       return request.auth != null
-        && exists(studentProfilePath(request.auth.uid))
         && get(studentProfilePath(request.auth.uid)).data.approved == true;
     }
 
