@@ -8,7 +8,7 @@
         var(--primary-bg);
 }
 .login-card {
-    width: min(100%, 520px);
+    width: min(100%, 720px);
     padding: clamp(2rem, 6vw, 3.5rem);
     background: linear-gradient(145deg, rgba(22, 27, 34, 0.98), rgba(13, 17, 23, 0.98));
     border: 1px solid rgba(210, 153, 34, 0.25);
@@ -165,4 +165,11 @@
 .btn-signout:hover {
     border-color: var(--color-yellow);
     color: var(--color-yellow);
+}
+
+@media (max-width: 640px) {
+    .login-card {
+        width: 100%;
+        padding: 1.5rem;
+    }
 }
