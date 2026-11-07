@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sign in to your DMA Silambam student account with Google.">
+    <meta name="description" content="Sign in to your DMA Silambam student account.">
     <title>Student Login | DMA Silambam</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,30 +35,30 @@
             <img src="logo.png" alt="" class="nav-logo-img">
             <p class="catalog-eyebrow">DMA Silambam students</p>
             <h1 id="login-title">Student Login</h1>
-            <p class="login-intro">Sign in with your Google account to open your approved student profile and tutorials.</p>
+            <p class="login-intro">Sign in with the email and password provided by DMA Silambam to open your approved profile and tutorials.</p>
 
             <div id="loginSignIn" class="login-signin">
-                <button id="googleSignIn" class="google-signin-button" type="button" disabled>
-                    <svg viewBox="0 0 48 48" aria-hidden="true">
-                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.05 13.24l7.98 6.19C11.96 13.72 17.49 9.5 24 9.5z" transform="translate(0 4)"/>
-                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.75 7.18l7.7 5.98c4.5-4.15 7.09-10.25 7.09-17.63z"/>
-                        <path fill="#FBBC05" d="M10.03 28.57a14.4 14.4 0 0 1 0-9.14l-7.98-6.2a24 24 0 0 0 0 21.54l7.98-6.2z"/>
-                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.9-5.82l-7.7-5.98c-2.13 1.43-4.87 2.28-8.2 2.28-6.51 0-12.04-4.22-14.02-10.08l-7.98 6.2C6.51 42.62 14.62 48 24 48z"/>
-                    </svg>
-                    <span>Continue with Google</span>
-                </button>
+                <form id="emailPasswordSignIn" class="login-form">
+                    <label for="studentLoginEmail">Email address</label>
+                    <input id="studentLoginEmail" name="email" type="email" autocomplete="username" required>
+                    <label for="studentLoginPassword">Password</label>
+                    <input id="studentLoginPassword" name="password" type="password" autocomplete="current-password" required>
+                    <button id="emailPasswordSignInButton" class="google-signin-button" type="submit" disabled>
+                        <span>Sign in</span>
+                    </button>
+                </form>
+                <button id="resetPassword" class="reset-password-button" type="button" disabled>Forgot password?</button>
                 <p id="authStatus" class="auth-status" role="status" aria-live="polite">Preparing sign-in…</p>
-                <p class="login-consent">DMA Silambam uses your Google name and email to match your student account. Your date of birth is shown only in your own approved profile.</p>
+                <p class="login-consent">Student accounts are created by DMA Silambam. Use the password provided for this student account, not your Gmail password. You can request a password reset by email.</p>
             </div>
 
             <div id="studentAccount" class="student-account" hidden>
                 <div class="student-profile">
-                    <img id="studentPhoto" alt="" hidden>
                     <h2 id="studentName"></h2>
                     <p id="studentEmail"></p>
                     <p id="studentDateOfBirth" class="student-date-of-birth" hidden></p>
                 </div>
-                <p id="accountStatus" class="auth-status" role="status" aria-live="polite">You’re signed in with Google.</p>
+                <p id="accountStatus" class="auth-status" role="status" aria-live="polite">You’re signed in.</p>
 
                 <section id="studentTutorials" class="student-tutorials" aria-labelledby="tutorials-title" hidden>
                     <h3 id="tutorials-title">Your Tutorials</h3>
@@ -82,7 +82,7 @@
 
                 <div class="login-actions">
                     <a class="btn btn-primary" href="courses.html">Browse Courses</a>
-                    <button id="googleSignOut" class="btn btn-signout" type="button">Sign out</button>
+                    <button id="emailPasswordSignOut" class="btn btn-signout" type="button">Sign out</button>
                 </div>
             </div>
         </section>
