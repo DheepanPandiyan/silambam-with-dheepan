@@ -20,6 +20,12 @@ const studentName = document.getElementById("studentName");
 const studentEmail = document.getElementById("studentEmail");
 const studentPhoto = document.getElementById("studentPhoto");
 const studentDateOfBirth = document.getElementById("studentDateOfBirth");
+const tutorialsPanel = document.getElementById("studentTutorials");
+const tutorialPlaylist = document.getElementById("tutorialPlaylist");
+const tutorialStatus = document.getElementById("tutorialStatus");
+const tutorialPlayerWrap = document.getElementById("tutorialPlayerWrap");
+const tutorialPlayer = document.getElementById("tutorialPlayer");
+const tutorialOpenLink = document.getElementById("tutorialOpenLink");
 
 function setStatus(message, tone = "info") {
     statusMessage.textContent = message;
@@ -31,6 +37,8 @@ function setStatus(message, tone = "info") {
 function showSignedOut() {
     signInPanel.hidden = false;
     accountPanel.hidden = true;
+    tutorialsPanel.hidden = true;
+    tutorialPlayer.removeAttribute("src");
 }
 
 function describeAuthError(error) {
@@ -57,9 +65,85 @@ function formatDateOfBirth(value) {
     return `${day}/${month}/${year}`;
 }
 
+function showPlaylist(playlist) {
+    const embedUrl = new URL("https://www.youtube-nocookie.com/embed");
+    embedUrl.searchParams.set("listType", "playlist");
+    embedUrl.searchParams.set("list", playlist.youtubePlaylistId);
+
+    const playlistUrl = new URL("https://www.youtube.com/playlist");
+    playlistUrl.searchParams.set("list", playlist.youtubePlaylistId);
+
+    tutorialPlayer.src = embedUrl.toString();
+    tutorialPlayer.title = playlist.title;
+    tutorialOpenLink.href = playlistUrl.toString();
+    tutorialPlayerWrap.hidden = false;
+    tutorialStatus.textContent = `${playlist.title} — choose a video using the playlist controls.`;
+}
+
+async function loadStudentPlaylists(db, allowedPlaylists) {
+    tutorialsPanel.hidden = false;
+    tutorialPlayerWrap.hidden = true;
+    tutorialPlayer.removeAttribute("src");
+    tutorialPlaylist.replaceChildren();
+
+    const playlistIds = Array.isArray(allowedPlaylists)
+        ? [...new Set(allowedPlaylists.filter((id) => typeof id === "string" && /^[a-zA-Z0-9_-]+$/.test(id)))]
+        : [];
+
+    if (playlistIds.length === 0) {
+        tutorialPlaylist.disabled = true;
+        tutorialPlaylist.add(new Option("No playlists assigned", ""));
+        tutorialStatus.textContent = "Ask DMA Silambam to assign playlists to your account.";
+        return;
+    }
+
+    tutorialPlaylist.disabled = true;
+    tutorialPlaylist.add(new Option("Loading your playlists…", ""));
+    tutorialStatus.textContent = "";
+
+    try {
+        const snapshots = await Promise.all(playlistIds.map((playlistId) =>
+            getDoc(doc(db, "tutorialPlaylists", playlistId))
+        ));
+        const playlists = snapshots
+            .filter((snapshot) => snapshot.exists())
+            .map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }))
+            .filter((playlist) =>
+                typeof playlist.title === "string"
+                && playlist.title.trim().length > 0
+                && typeof playlist.youtubePlaylistId === "string"
+                && /^[a-zA-Z0-9_-]{10,80}$/.test(playlist.youtubePlaylistId)
+            );
+
+        tutorialPlaylist.replaceChildren();
+        if (playlists.length === 0) {
+            tutorialPlaylist.disabled = true;
+            tutorialPlaylist.add(new Option("No playlists available", ""));
+            tutorialStatus.textContent = "No assigned playlists are available yet.";
+            return;
+        }
+
+        playlists.forEach((playlist) => {
+            tutorialPlaylist.add(new Option(playlist.title, playlist.id));
+        });
+        tutorialPlaylist.disabled = false;
+        tutorialPlaylist.onchange = () => {
+            const selected = playlists.find((playlist) => playlist.id === tutorialPlaylist.value);
+            if (selected) showPlaylist(selected);
+        };
+        showPlaylist(playlists[0]);
+    } catch (error) {
+        console.error("Could not load assigned playlists:", error);
+        tutorialPlaylist.replaceChildren(new Option("Playlists unavailable", ""));
+        tutorialPlaylist.disabled = true;
+        tutorialStatus.textContent = "Could not load playlists. Please try again later.";
+    }
+}
+
 async function showSignedInUser(user, db) {
     signInPanel.hidden = true;
     accountPanel.hidden = false;
+    tutorialsPanel.hidden = true;
     studentName.textContent = user.displayName || "DMA Silambam student";
     studentEmail.textContent = user.email || "";
     studentDateOfBirth.hidden = true;
@@ -93,6 +177,7 @@ async function showSignedInUser(user, db) {
             studentDateOfBirth.hidden = false;
         }
         setStatus("Your student profile is approved.", "success");
+        await loadStudentPlaylists(db, profile.allowedPlaylists);
     } catch (error) {
         console.error("Could not load student profile:", error);
         setStatus("You’re signed in, but your student profile could not be loaded. Please try again later.", "error");

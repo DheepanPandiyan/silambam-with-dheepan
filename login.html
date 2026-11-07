@@ -35,7 +35,7 @@
             <img src="logo.png" alt="" class="nav-logo-img">
             <p class="catalog-eyebrow">DMA Silambam students</p>
             <h1 id="login-title">Student Login</h1>
-            <p class="login-intro">Sign in with your Google account to open your approved student profile.</p>
+            <p class="login-intro">Sign in with your Google account to open your approved student profile and tutorials.</p>
 
             <div id="loginSignIn" class="login-signin">
                 <button id="googleSignIn" class="google-signin-button" type="button" disabled>
@@ -59,6 +59,27 @@
                     <p id="studentDateOfBirth" class="student-date-of-birth" hidden></p>
                 </div>
                 <p id="accountStatus" class="auth-status" role="status" aria-live="polite">You’re signed in with Google.</p>
+
+                <section id="studentTutorials" class="student-tutorials" aria-labelledby="tutorials-title" hidden>
+                    <h3 id="tutorials-title">Your Tutorials</h3>
+                    <label for="tutorialPlaylist">Choose a playlist</label>
+                    <select id="tutorialPlaylist" disabled>
+                        <option value="">Loading your playlists…</option>
+                    </select>
+                    <p id="tutorialStatus" class="tutorial-status" role="status" aria-live="polite"></p>
+                    <div id="tutorialPlayerWrap" class="tutorial-player-wrap" hidden>
+                        <iframe
+                            id="tutorialPlayer"
+                            title="Silambam tutorial playlist"
+                            loading="lazy"
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowfullscreen>
+                        </iframe>
+                        <a id="tutorialOpenLink" class="tutorial-open-link" target="_blank" rel="noopener noreferrer">Open the full playlist on YouTube</a>
+                    </div>
+                </section>
+
                 <div class="login-actions">
                     <a class="btn btn-primary" href="courses.html">Browse Courses</a>
                     <button id="googleSignOut" class="btn btn-signout" type="button">Sign out</button>
