@@ -58,7 +58,7 @@ function describeAuthError(error) {
 }
 
 function formatDateOfBirth(value) {
-    if (typeof value !== "string" || !/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) {
+    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
         return "";
     }
     const [year, month, day] = value.split("-");
@@ -121,10 +121,10 @@ async function loadStudentTutorials(db, allowedChapters) {
             tutorialChapter.add(new Option(chapter.title, chapter.id));
         });
         tutorialChapter.disabled = false;
-        tutorialChapter.addEventListener("change", () => {
+        tutorialChapter.onchange = () => {
             const selected = chapters.find((chapter) => chapter.id === tutorialChapter.value);
             if (selected) showTutorial(selected);
-        });
+        };
         showTutorial(chapters[0]);
     } catch (error) {
         console.error("Could not load assigned tutorials:", error);
