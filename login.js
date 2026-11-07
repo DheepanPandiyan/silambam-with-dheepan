@@ -21,7 +21,7 @@ const studentEmail = document.getElementById("studentEmail");
 const studentPhoto = document.getElementById("studentPhoto");
 const studentDateOfBirth = document.getElementById("studentDateOfBirth");
 const tutorialsPanel = document.getElementById("studentTutorials");
-const tutorialChapter = document.getElementById("tutorialChapter");
+const tutorialPlaylist = document.getElementById("tutorialPlaylist");
 const tutorialStatus = document.getElementById("tutorialStatus");
 const tutorialPlayerWrap = document.getElementById("tutorialPlayerWrap");
 const tutorialPlayer = document.getElementById("tutorialPlayer");
@@ -58,79 +58,85 @@ function describeAuthError(error) {
 }
 
 function formatDateOfBirth(value) {
-    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    if (typeof value !== "string" || !/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) {
         return "";
     }
     const [year, month, day] = value.split("-");
     return `${day}/${month}/${year}`;
 }
 
-function showTutorial(chapter) {
-    const embedUrl = `https://www.youtube-nocookie.com/embed/${chapter.videoId}`;
-    const watchUrl = `https://www.youtube.com/watch?v=${chapter.videoId}`;
-    tutorialPlayer.src = embedUrl;
-    tutorialPlayer.title = chapter.title;
-    tutorialOpenLink.href = watchUrl;
+function showPlaylist(playlist) {
+    const embedUrl = new URL("https://www.youtube-nocookie.com/embed");
+    embedUrl.searchParams.set("listType", "playlist");
+    embedUrl.searchParams.set("list", playlist.youtubePlaylistId);
+
+    const playlistUrl = new URL("https://www.youtube.com/playlist");
+    playlistUrl.searchParams.set("list", playlist.youtubePlaylistId);
+
+    tutorialPlayer.src = embedUrl.toString();
+    tutorialPlayer.title = playlist.title;
+    tutorialOpenLink.href = playlistUrl.toString();
     tutorialPlayerWrap.hidden = false;
-    tutorialStatus.textContent = chapter.title;
+    tutorialStatus.textContent = `${playlist.title} — choose a video using the playlist controls.`;
 }
 
-async function loadStudentTutorials(db, allowedChapters) {
+async function loadStudentPlaylists(db, allowedPlaylists) {
     tutorialsPanel.hidden = false;
     tutorialPlayerWrap.hidden = true;
     tutorialPlayer.removeAttribute("src");
-    tutorialChapter.replaceChildren();
+    tutorialPlaylist.replaceChildren();
 
-    const chapterIds = Array.isArray(allowedChapters)
-        ? [...new Set(allowedChapters.filter((id) => typeof id === "string" && /^[a-zA-Z0-9_-]+$/.test(id)))]
+    const playlistIds = Array.isArray(allowedPlaylists)
+        ? [...new Set(allowedPlaylists.filter((id) => typeof id === "string" && /^[a-zA-Z0-9_-]+$/.test(id)))]
         : [];
 
-    if (chapterIds.length === 0) {
-        tutorialChapter.disabled = true;
-        tutorialChapter.add(new Option("No chapters assigned", ""));
-        tutorialStatus.textContent = "Ask DMA Silambam to assign tutorials to your account.";
+    if (playlistIds.length === 0) {
+        tutorialPlaylist.disabled = true;
+        tutorialPlaylist.add(new Option("No playlists assigned", ""));
+        tutorialStatus.textContent = "Ask DMA Silambam to assign playlists to your account.";
         return;
     }
 
-    tutorialChapter.disabled = true;
-    tutorialChapter.add(new Option("Loading your chapters…", ""));
+    tutorialPlaylist.disabled = true;
+    tutorialPlaylist.add(new Option("Loading your playlists…", ""));
     tutorialStatus.textContent = "";
 
     try {
-        const snapshots = await Promise.all(chapterIds.map((chapterId) =>
-            getDoc(doc(db, "tutorials", chapterId))
+        const snapshots = await Promise.all(playlistIds.map((playlistId) =>
+            getDoc(doc(db, "tutorialPlaylists", playlistId))
         ));
-        const chapters = snapshots
+        const playlists = snapshots
             .filter((snapshot) => snapshot.exists())
             .map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }))
-            .filter((chapter) =>
-                typeof chapter.title === "string"
-                && typeof chapter.videoId === "string"
-                && /^[a-zA-Z0-9_-]{11}$/.test(chapter.videoId)
+            .filter((playlist) =>
+                typeof playlist.title === "string"
+                && playlist.title.trim().length > 0
+                && typeof playlist.youtubePlaylistId === "string"
+                && /^[a-zA-Z0-9_-]{10,80}$/.test(playlist.youtubePlaylistId)
             );
 
-        tutorialChapter.replaceChildren();
-        if (chapters.length === 0) {
-            tutorialChapter.disabled = true;
-            tutorialChapter.add(new Option("No chapters available", ""));
-            tutorialStatus.textContent = "No assigned chapters are available yet.";
+        tutorialPlaylist.replaceChildren();
+        if (playlists.length === 0) {
+            tutorialPlaylist.disabled = true;
+            tutorialPlaylist.add(new Option("No playlists available", ""));
+            tutorialStatus.textContent = "No assigned playlists are available yet.";
             return;
         }
 
-        chapters.forEach((chapter) => {
-            tutorialChapter.add(new Option(chapter.title, chapter.id));
+        playlists.forEach((playlist) => {
+            tutorialPlaylist.add(new Option(playlist.title, playlist.id));
         });
-        tutorialChapter.disabled = false;
-        tutorialChapter.onchange = () => {
-            const selected = chapters.find((chapter) => chapter.id === tutorialChapter.value);
-            if (selected) showTutorial(selected);
+        tutorialPlaylist.disabled = false;
+        tutorialPlaylist.onchange = () => {
+            const selected = playlists.find((playlist) => playlist.id === tutorialPlaylist.value);
+            if (selected) showPlaylist(selected);
         };
-        showTutorial(chapters[0]);
+        showPlaylist(playlists[0]);
     } catch (error) {
-        console.error("Could not load assigned tutorials:", error);
-        tutorialChapter.replaceChildren(new Option("Tutorials unavailable", ""));
-        tutorialChapter.disabled = true;
-        tutorialStatus.textContent = "Could not load tutorials. Please try again later.";
+        console.error("Could not load assigned playlists:", error);
+        tutorialPlaylist.replaceChildren(new Option("Playlists unavailable", ""));
+        tutorialPlaylist.disabled = true;
+        tutorialStatus.textContent = "Could not load playlists. Please try again later.";
     }
 }
 
@@ -171,7 +177,7 @@ async function showSignedInUser(user, db) {
             studentDateOfBirth.hidden = false;
         }
         setStatus("Your student profile is approved.", "success");
-        await loadStudentTutorials(db, profile.allowedChapters);
+        await loadStudentPlaylists(db, profile.allowedPlaylists);
     } catch (error) {
         console.error("Could not load student profile:", error);
         setStatus("You’re signed in, but your student profile could not be loaded. Please try again later.", "error");
