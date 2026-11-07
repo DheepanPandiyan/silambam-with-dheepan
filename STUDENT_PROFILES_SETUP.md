@@ -1,6 +1,6 @@
 # Student profiles and tutorial access
 
-The student page uses Google sign-in, shows an approved student's private profile, and displays a chapter dropdown containing only assigned tutorials. Tutorial records are protected by Firestore rules; the website fetches only chapter IDs assigned to that student's profile.
+The student page uses Google sign-in, shows an approved student's private profile, and displays a playlist dropdown containing only assigned YouTube playlists. Tutorial playlist records are protected by Firestore rules; the website fetches only playlist IDs assigned to that student's profile.
 
 ## Enable Firestore and publish rules
 
@@ -10,18 +10,20 @@ The student page uses Google sign-in, shows an approved student's private profil
 
 Do not use test mode for student records.
 
-## Add a tutorial chapter
+## Add a YouTube playlist
 
-For each YouTube video:
+For each playlist you want students to access:
 
-1. Make the video **Unlisted** in YouTube Studio.
-2. In **Firestore Database → Data**, create a collection named `tutorials` (if it does not exist).
-3. Create a document with a simple chapter ID, such as `chapter-01`.
+1. Set the YouTube videos to **Unlisted** and create the playlist in YouTube.
+2. In **Firestore Database → Data**, create a collection named `tutorialPlaylists` (if it does not exist).
+3. Create a document with a simple ID, such as `basics` or `advanced`.
 4. Add:
-   - `title` — string, such as `Chapter 1: Basic grip`
-   - `videoId` — string, the 11-character YouTube video ID from its link
+   - `title` — string, such as `Silambam Basics`
+   - `youtubePlaylistId` — string, the playlist ID from the YouTube playlist URL. For example, in `https://www.youtube.com/playlist?list=PLabc123...`, copy the value after `list=`.
 
-The site embeds the assigned video and also offers an **Open this video on YouTube** link. Unlisted videos can be watched by anyone who gets the link, so this controls which chapters appear on the student page but does not prevent an invited student from sharing a link.
+The student portal shows a dropdown for assigned playlists. The selected playlist opens in an embedded YouTube player with playlist controls, so the student can choose a video. The link below it opens the full playlist on YouTube.
+
+Unlisted videos and playlists can be watched or shared by anyone who gets the link. This controls which playlists the site displays to a student; it does not prevent link sharing.
 
 ## Add or approve a student
 
@@ -32,11 +34,11 @@ The site embeds the assigned video and also offers an **Open this video on YouTu
    - `fullName` — string, the student's name
    - `dateOfBirth` — string in `YYYY-MM-DD` format (for example, `2012-04-23`)
    - `approved` — boolean, set to `true` to approve access
-   - `allowedChapters` — array of chapter document IDs this student may view, such as `["chapter-01", "chapter-02"]`
+   - `allowedPlaylists` — array of playlist document IDs this student may view, such as [`basics`, `advanced`]
 
-To revoke a chapter, remove its ID from `allowedChapters`. To suspend a student, set `approved` to `false`.
+Each student's array can contain a different set of playlist IDs. To revoke a playlist, remove its ID from `allowedPlaylists`. To suspend a student, set `approved` to `false`.
 
-Students can read only their own profile and assigned tutorial documents. They cannot list or edit records. Project administrators manage the records in Firebase Console.
+Students can read only their own profile and assigned playlist documents. They cannot list or edit records. Project administrators manage the records in Firebase Console.
 
 ## Privacy
 
