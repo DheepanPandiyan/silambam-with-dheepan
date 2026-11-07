@@ -1,0 +1,14 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /studentProfiles/{studentUid} {
+      // A signed-in student can read only their own profile document.
+      allow get: if request.auth != null && request.auth.uid == studentUid;
+
+      // Students cannot browse, create, change, or remove profile records.
+      // Add or update profiles as the project owner in the Firebase Console.
+      allow list, create, update, delete: if false;
+    }
+  }
+}
