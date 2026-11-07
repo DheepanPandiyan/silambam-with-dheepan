@@ -20,6 +20,12 @@ const studentName = document.getElementById("studentName");
 const studentEmail = document.getElementById("studentEmail");
 const studentPhoto = document.getElementById("studentPhoto");
 const studentDateOfBirth = document.getElementById("studentDateOfBirth");
+const tutorialsPanel = document.getElementById("studentTutorials");
+const tutorialChapter = document.getElementById("tutorialChapter");
+const tutorialStatus = document.getElementById("tutorialStatus");
+const tutorialPlayerWrap = document.getElementById("tutorialPlayerWrap");
+const tutorialPlayer = document.getElementById("tutorialPlayer");
+const tutorialOpenLink = document.getElementById("tutorialOpenLink");
 
 function setStatus(message, tone = "info") {
     statusMessage.textContent = message;
@@ -31,6 +37,8 @@ function setStatus(message, tone = "info") {
 function showSignedOut() {
     signInPanel.hidden = false;
     accountPanel.hidden = true;
+    tutorialsPanel.hidden = true;
+    tutorialPlayer.removeAttribute("src");
 }
 
 function describeAuthError(error) {
@@ -50,16 +58,86 @@ function describeAuthError(error) {
 }
 
 function formatDateOfBirth(value) {
-    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    if (typeof value !== "string" || !/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) {
         return "";
     }
     const [year, month, day] = value.split("-");
     return `${day}/${month}/${year}`;
 }
 
+function showTutorial(chapter) {
+    const embedUrl = `https://www.youtube-nocookie.com/embed/${chapter.videoId}`;
+    const watchUrl = `https://www.youtube.com/watch?v=${chapter.videoId}`;
+    tutorialPlayer.src = embedUrl;
+    tutorialPlayer.title = chapter.title;
+    tutorialOpenLink.href = watchUrl;
+    tutorialPlayerWrap.hidden = false;
+    tutorialStatus.textContent = chapter.title;
+}
+
+async function loadStudentTutorials(db, allowedChapters) {
+    tutorialsPanel.hidden = false;
+    tutorialPlayerWrap.hidden = true;
+    tutorialPlayer.removeAttribute("src");
+    tutorialChapter.replaceChildren();
+
+    const chapterIds = Array.isArray(allowedChapters)
+        ? [...new Set(allowedChapters.filter((id) => typeof id === "string" && /^[a-zA-Z0-9_-]+$/.test(id)))]
+        : [];
+
+    if (chapterIds.length === 0) {
+        tutorialChapter.disabled = true;
+        tutorialChapter.add(new Option("No chapters assigned", ""));
+        tutorialStatus.textContent = "Ask DMA Silambam to assign tutorials to your account.";
+        return;
+    }
+
+    tutorialChapter.disabled = true;
+    tutorialChapter.add(new Option("Loading your chapters…", ""));
+    tutorialStatus.textContent = "";
+
+    try {
+        const snapshots = await Promise.all(chapterIds.map((chapterId) =>
+            getDoc(doc(db, "tutorials", chapterId))
+        ));
+        const chapters = snapshots
+            .filter((snapshot) => snapshot.exists())
+            .map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }))
+            .filter((chapter) =>
+                typeof chapter.title === "string"
+                && typeof chapter.videoId === "string"
+                && /^[a-zA-Z0-9_-]{11}$/.test(chapter.videoId)
+            );
+
+        tutorialChapter.replaceChildren();
+        if (chapters.length === 0) {
+            tutorialChapter.disabled = true;
+            tutorialChapter.add(new Option("No chapters available", ""));
+            tutorialStatus.textContent = "No assigned chapters are available yet.";
+            return;
+        }
+
+        chapters.forEach((chapter) => {
+            tutorialChapter.add(new Option(chapter.title, chapter.id));
+        });
+        tutorialChapter.disabled = false;
+        tutorialChapter.addEventListener("change", () => {
+            const selected = chapters.find((chapter) => chapter.id === tutorialChapter.value);
+            if (selected) showTutorial(selected);
+        });
+        showTutorial(chapters[0]);
+    } catch (error) {
+        console.error("Could not load assigned tutorials:", error);
+        tutorialChapter.replaceChildren(new Option("Tutorials unavailable", ""));
+        tutorialChapter.disabled = true;
+        tutorialStatus.textContent = "Could not load tutorials. Please try again later.";
+    }
+}
+
 async function showSignedInUser(user, db) {
     signInPanel.hidden = true;
     accountPanel.hidden = false;
+    tutorialsPanel.hidden = true;
     studentName.textContent = user.displayName || "DMA Silambam student";
     studentEmail.textContent = user.email || "";
     studentDateOfBirth.hidden = true;
@@ -93,6 +171,7 @@ async function showSignedInUser(user, db) {
             studentDateOfBirth.hidden = false;
         }
         setStatus("Your student profile is approved.", "success");
+        await loadStudentTutorials(db, profile.allowedChapters);
     } catch (error) {
         console.error("Could not load student profile:", error);
         setStatus("You’re signed in, but your student profile could not be loaded. Please try again later.", "error");
