@@ -35,7 +35,7 @@
             <img src="logo.png" alt="" class="nav-logo-img">
             <p class="catalog-eyebrow">DMA Silambam students</p>
             <h1 id="login-title">Student Login</h1>
-            <p class="login-intro">Sign in with your Google account to continue to DMA Silambam.</p>
+            <p class="login-intro">Sign in with your Google account to open your approved student profile.</p>
 
             <div id="loginSignIn" class="login-signin">
                 <button id="googleSignIn" class="google-signin-button" type="button" disabled>
@@ -48,7 +48,7 @@
                     <span>Continue with Google</span>
                 </button>
                 <p id="authStatus" class="auth-status" role="status" aria-live="polite">Preparing sign-in…</p>
-                <p class="login-consent">Continuing shares your Google name, email, and profile photo with DMA Silambam to identify your student account.</p>
+                <p class="login-consent">DMA Silambam uses your Google name and email to match your student account. Your date of birth is shown only in your own approved profile.</p>
             </div>
 
             <div id="studentAccount" class="student-account" hidden>
@@ -56,8 +56,9 @@
                     <img id="studentPhoto" alt="" hidden>
                     <h2 id="studentName"></h2>
                     <p id="studentEmail"></p>
+                    <p id="studentDateOfBirth" class="student-date-of-birth" hidden></p>
                 </div>
-                <p id="accountStatus" class="auth-status" role="status">You’re signed in with Google.</p>
+                <p id="accountStatus" class="auth-status" role="status" aria-live="polite">You’re signed in with Google.</p>
                 <div class="login-actions">
                     <a class="btn btn-primary" href="courses.html">Browse Courses</a>
                     <button id="googleSignOut" class="btn btn-signout" type="button">Sign out</button>
