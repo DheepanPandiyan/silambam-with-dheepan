@@ -19,13 +19,13 @@ service cloud.firestore {
       allow list, create, update, delete: if false;
     }
 
-    match /tutorials/{chapterId} {
-      // Students can read only chapters included in their own approved profile.
+    match /tutorialPlaylists/{playlistId} {
+      // Students can read only playlists included in their own approved profile.
       allow get: if isApprovedStudent()
-        && get(studentProfilePath(request.auth.uid)).data.allowedChapters is list
-        && chapterId in get(studentProfilePath(request.auth.uid)).data.allowedChapters;
+        && get(studentProfilePath(request.auth.uid)).data.allowedPlaylists is list
+        && playlistId in get(studentProfilePath(request.auth.uid)).data.allowedPlaylists;
 
-      // Do not expose the chapter catalog or allow changes from the website.
+      // Do not expose the playlist catalog or allow changes from the website.
       allow list, create, update, delete: if false;
     }
   }
