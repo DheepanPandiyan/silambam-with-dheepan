@@ -1,12 +1,19 @@
 # Student profiles and tutorial access
 
-The student page uses Google sign-in, shows an approved student's private profile, and displays a playlist dropdown containing only assigned YouTube playlists. Tutorial playlist records are protected by Firestore rules; the website fetches only playlist IDs assigned to that student's profile.
+Students sign in with an email address and a Firebase password created for their student account. There is no public sign-up form. The project owner creates each account, approves its Firestore profile, and assigns the playlists that student may view.
+
+## Enable Firebase Authentication
+
+1. In Firebase Console, open the `dma-silambam` project.
+2. Open **Authentication → Sign-in method**.
+3. Enable **Email/Password** and save.
+
+The student password is a Firebase account password. Students should not give the site their Gmail password.
 
 ## Enable Firestore and publish rules
 
-1. In Firebase Console, open the `dma-silambam` project.
-2. Open **Build → Firestore Database** and create a database in **Production mode**.
-3. Open the **Rules** tab, replace the starter rules with the contents of `firestore.rules`, and publish them.
+1. Open **Build → Firestore Database** and create a database in **Production mode**.
+2. Open the **Rules** tab, replace the starter rules with the contents of `firestore.rules`, and publish them.
 
 Do not use test mode for student records.
 
@@ -25,20 +32,23 @@ The student portal shows a dropdown for assigned playlists. The selected playlis
 
 Unlisted videos and playlists can be watched or shared by anyone who gets the link. This controls which playlists the site displays to a student; it does not prevent link sharing.
 
-## Add or approve a student
+## Create and approve a student account
 
-1. Have the student sign in with their own Google account once. They must use that same account each time.
-2. In Firebase Console, open **Authentication → Users** and copy the student's **UID**.
-3. In **Firestore Database → Data**, create a document in `studentProfiles` whose document ID is that UID.
-4. Add:
+1. In Firebase Console, open **Authentication → Users** and choose **Add user**.
+2. Enter the student's email address and create a Firebase password for their account. This password is separate from their Gmail password. Give the initial login details to the student securely.
+3. Copy the new user's **UID**.
+4. In **Firestore Database → Data**, create a document in `studentProfiles` whose document ID is that UID.
+5. Add:
    - `fullName` — string, the student's name
    - `dateOfBirth` — string in `YYYY-MM-DD` format (for example, `2012-04-23`)
    - `approved` — boolean, set to `true` to approve access
    - `allowedPlaylists` — array of playlist document IDs this student may view, such as [`basics`, `advanced`]
 
-Each student's array can contain a different set of playlist IDs. To revoke a playlist, remove its ID from `allowedPlaylists`. To suspend a student, set `approved` to `false`.
+The student can then sign in at the website using that email and Firebase password. There is no self-registration form. The login page's **Forgot password?** link emails a reset link to that account's address.
 
-Students can read only their own profile and assigned playlist documents. They cannot list or edit records. Project administrators manage the records in Firebase Console.
+Each student's playlist array can be different. To revoke a playlist, remove its ID from `allowedPlaylists`. To suspend a student, set `approved` to `false`.
+
+Students can read only their own profile and assigned playlist documents. They cannot list or edit records. Project administrators manage the accounts and records in Firebase Console.
 
 ## Privacy
 
