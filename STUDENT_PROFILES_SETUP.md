@@ -32,7 +32,7 @@ The site embeds the assigned video and also offers an **Open this video on YouTu
    - `fullName` — string, the student's name
    - `dateOfBirth` — string in `YYYY-MM-DD` format (for example, `2012-04-23`)
    - `approved` — boolean, set to `true` to approve access
-   - `allowedChapters` — array of chapter document IDs this student may view, such as `[`chapter-01`, `chapter-02`]`
+   - `allowedChapters` — array of chapter document IDs this student may view, such as `["chapter-01", "chapter-02"]`
 
 To revoke a chapter, remove its ID from `allowedChapters`. To suspend a student, set `approved` to `false`.
 
