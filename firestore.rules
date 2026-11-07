@@ -2,12 +2,31 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function studentProfilePath(uid) {
+      return /databases/$(database)/documents/studentProfiles/$(uid);
+    }
+
+    function isApprovedStudent() {
+      return request.auth != null
+        && exists(studentProfilePath(request.auth.uid))
+        && get(studentProfilePath(request.auth.uid)).data.approved == true;
+    }
+
     match /studentProfiles/{studentUid} {
       // A signed-in student can read only their own profile document.
       allow get: if request.auth != null && request.auth.uid == studentUid;
 
-      // Students cannot browse, create, change, or remove profile records.
-      // Add or update profiles as the project owner in the Firebase Console.
+      // Profile documents are managed by the project owner in Firebase Console.
+      allow list, create, update, delete: if false;
+    }
+
+    match /tutorials/{chapterId} {
+      // Students can read only chapters included in their own approved profile.
+      allow get: if isApprovedStudent()
+        && get(studentProfilePath(request.auth.uid)).data.allowedChapters is list
+        && chapterId in get(studentProfilePath(request.auth.uid)).data.allowedChapters;
+
+      // Do not expose the chapter catalog or allow changes from the website.
       allow list, create, update, delete: if false;
     }
   }
