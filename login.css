@@ -30,13 +30,36 @@
     margin-bottom: 1.75rem;
     color: var(--text-secondary);
 }
-.google-signin-button {
+.login-form {
+    display: grid;
+    gap: 0.7rem;
+    text-align: left;
+}
+.login-form label {
+    color: var(--text-secondary);
+}
+.login-form input {
+    width: 100%;
+    min-height: 50px;
+    box-sizing: border-box;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid rgba(230, 237, 243, 0.25);
+    border-radius: 10px;
+    background: #0d1117;
+    color: var(--text-primary);
+    font: inherit;
+}
+.login-form input:focus {
+    outline: 2px solid var(--color-yellow);
+    outline-offset: 2px;
+}
+.login-submit-button {
     display: flex;
     width: 100%;
     min-height: 54px;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem;
+    margin-top: 0.55rem;
     padding: 0.85rem 1rem;
     border: 1px solid rgba(230, 237, 243, 0.25);
     border-radius: 12px;
@@ -46,18 +69,25 @@
     cursor: pointer;
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
-.google-signin-button:not(:disabled):hover {
+.login-submit-button:not(:disabled):hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
-.google-signin-button:disabled {
+.login-submit-button:disabled,
+.reset-password-button:disabled {
     cursor: not-allowed;
     opacity: 0.6;
 }
-.google-signin-button svg {
-    width: 20px;
-    height: 20px;
-    flex: 0 0 20px;
+.reset-password-button {
+    margin-top: 0.8rem;
+    border: 0;
+    background: transparent;
+    color: var(--color-yellow);
+    font: 600 0.95rem 'Outfit', sans-serif;
+    cursor: pointer;
+}
+.reset-password-button:not(:disabled):hover {
+    text-decoration: underline;
 }
 .auth-status {
     min-height: 1.5em;
@@ -87,14 +117,6 @@
     justify-items: center;
     gap: 0.35rem;
     margin: 1.5rem 0;
-}
-.student-profile img {
-    width: 72px;
-    height: 72px;
-    margin-bottom: 0.5rem;
-    border: 2px solid var(--color-yellow);
-    border-radius: 50%;
-    object-fit: cover;
 }
 .student-profile p {
     color: var(--text-secondary);

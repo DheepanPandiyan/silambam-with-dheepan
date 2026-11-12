@@ -1,10 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
 import {
     getAuth,
-    GoogleAuthProvider,
     onAuthStateChanged,
-    signInWithRedirect,
-    getRedirectResult,
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail,
     signOut
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
@@ -12,13 +11,16 @@ import { firebaseConfig } from "./firebase-config.js";
 
 const signInPanel = document.getElementById("loginSignIn");
 const accountPanel = document.getElementById("studentAccount");
-const signInButton = document.getElementById("googleSignIn");
-const signOutButton = document.getElementById("googleSignOut");
+const signInForm = document.getElementById("emailPasswordSignIn");
+const emailInput = document.getElementById("studentLoginEmail");
+const passwordInput = document.getElementById("studentLoginPassword");
+const signInButton = document.getElementById("emailPasswordSignInButton");
+const resetPasswordButton = document.getElementById("resetPassword");
+const signOutButton = document.getElementById("emailPasswordSignOut");
 const statusMessage = document.getElementById("authStatus");
 const accountStatusMessage = document.getElementById("accountStatus");
 const studentName = document.getElementById("studentName");
 const studentEmail = document.getElementById("studentEmail");
-const studentPhoto = document.getElementById("studentPhoto");
 const studentDateOfBirth = document.getElementById("studentDateOfBirth");
 const tutorialsPanel = document.getElementById("studentTutorials");
 const tutorialPlaylist = document.getElementById("tutorialPlaylist");
@@ -39,20 +41,21 @@ function showSignedOut() {
     accountPanel.hidden = true;
     tutorialsPanel.hidden = true;
     tutorialPlayer.removeAttribute("src");
+    passwordInput.value = "";
 }
 
 function describeAuthError(error) {
-    console.error("Firebase Google sign-in error:", error);
+    console.error("Firebase email/password sign-in error:", error);
     const code = typeof error?.code === "string" ? error.code : "unknown";
-    let message = "Google sign-in could not be completed.";
-    if (code === "auth/unauthorized-domain") {
-        message = "This website domain is not authorized in Firebase yet.";
-    } else if (code === "auth/operation-not-allowed") {
-        message = "Google sign-in is not enabled in Firebase Authentication yet.";
+    let message = "Could not sign in. Check your email and password, then try again.";
+    if (code === "auth/operation-not-allowed") {
+        message = "Email and password sign-in is not enabled in Firebase Authentication yet.";
+    } else if (code === "auth/invalid-api-key" || code === "auth/api-key-not-valid-please-pass-a-valid-api-key") {
+        message = "The Firebase API key is invalid. Check the web app configuration.";
     } else if (code === "auth/network-request-failed") {
         message = "Could not connect. Check your internet connection and try again.";
-    } else if (code === "auth/invalid-api-key") {
-        message = "The Firebase API key is invalid. Check the web app configuration.";
+    } else if (code === "auth/too-many-requests") {
+        message = "Too many attempts. Wait a little while, then try again.";
     }
     return `${message} (Error code: ${code})`;
 }
@@ -148,24 +151,12 @@ async function showSignedInUser(user, db) {
     studentEmail.textContent = user.email || "";
     studentDateOfBirth.hidden = true;
     studentDateOfBirth.textContent = "";
-    if (user.photoURL) {
-        studentPhoto.src = user.photoURL;
-        studentPhoto.alt = user.displayName ? `${user.displayName}'s profile photo` : "Student profile photo";
-        studentPhoto.hidden = false;
-    } else {
-        studentPhoto.hidden = true;
-    }
 
     setStatus("Checking your student profile…");
-    if (!user.emailVerified) {
-        setStatus("Please use a verified Google account for your student profile.", "error");
-        return;
-    }
-
     try {
         const profileSnapshot = await getDoc(doc(db, "studentProfiles", user.uid));
         if (!profileSnapshot.exists() || profileSnapshot.data().approved !== true) {
-            setStatus("Your Google sign-in worked. Your student profile is waiting for approval. Please contact DMA Silambam.", "info");
+            setStatus("Your account is not approved yet. Please contact DMA Silambam.", "info");
             return;
         }
 
@@ -191,15 +182,14 @@ const configured = ["apiKey", "authDomain", "projectId", "appId"].every((key) =>
 
 if (!configured) {
     signInButton.disabled = true;
-    setStatus("Google sign-in is not connected yet. Firebase setup is needed first.");
+    resetPasswordButton.disabled = true;
+    setStatus("Student sign-in is not connected yet. Firebase setup is needed first.");
 } else {
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const googleProvider = new GoogleAuthProvider();
-    googleProvider.setCustomParameters({ prompt: "select_account" });
 
-    setStatus("Sign in with your Google account to continue.");
+    setStatus("Sign in with the student email and password provided by DMA Silambam.");
     onAuthStateChanged(auth, (user) => {
         if (user) {
             showSignedInUser(user, db);
@@ -208,18 +198,45 @@ if (!configured) {
         }
     });
 
-    getRedirectResult(auth).catch((error) => {
-        setStatus(describeAuthError(error), "error");
-    });
-
     signInButton.disabled = false;
-    signInButton.addEventListener("click", async () => {
+    resetPasswordButton.disabled = false;
+
+    signInForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
         signInButton.disabled = true;
-        setStatus("Redirecting to Google…");
+        resetPasswordButton.disabled = true;
+        setStatus("Signing in…");
+
         try {
-            await signInWithRedirect(auth, googleProvider);
+            await signInWithEmailAndPassword(auth, email, password);
         } catch (error) {
             setStatus(describeAuthError(error), "error");
+        } finally {
+            signInButton.disabled = false;
+            resetPasswordButton.disabled = false;
+        }
+    });
+
+    resetPasswordButton.addEventListener("click", async () => {
+        const email = emailInput.value.trim();
+        if (!email) {
+            setStatus("Enter your student account email first, then choose Forgot password.");
+            emailInput.focus();
+            return;
+        }
+
+        resetPasswordButton.disabled = true;
+        signInButton.disabled = true;
+        setStatus("Sending password reset instructions…");
+        try {
+            await sendPasswordResetEmail(auth, email);
+            setStatus("If an account exists for this email, password reset instructions have been sent.", "success");
+        } catch (error) {
+            setStatus(describeAuthError(error), "error");
+        } finally {
+            resetPasswordButton.disabled = false;
             signInButton.disabled = false;
         }
     });
