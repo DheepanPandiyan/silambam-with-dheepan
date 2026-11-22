@@ -1,8 +1,9 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
 import {
     getAuth,
     GoogleAuthProvider,
     onAuthStateChanged,
+    signInWithPopup,
     signInWithRedirect,
     getRedirectResult
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
@@ -14,7 +15,7 @@ const configured = ["apiKey", "authDomain", "projectId", "appId"].every((key) =>
 });
 
 if (configured) {
-    const auth = getAuth(initializeApp(firebaseConfig));
+    const auth = getAuth(getApps().length ? getApp() : initializeApp(firebaseConfig));
     const googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: "select_account" });
 
@@ -100,7 +101,7 @@ if (configured) {
         if (code === "auth/operation-not-allowed") {
             return "Google sign-in is not enabled in Firebase Authentication.";
         }
-        if (code === "auth/invalid-api-key") {
+        if (code === "auth/invalid-api-key" || code.startsWith("auth/api-key-not-valid")) {
             return "The Firebase web API key is invalid.";
         }
         if (code === "auth/network-request-failed") {
@@ -140,11 +141,23 @@ if (configured) {
 
     googleButton.addEventListener("click", async () => {
         googleButton.disabled = true;
-        status.textContent = "Redirecting to Google…";
+        status.textContent = "Opening Google sign-in…";
         try {
-            await signInWithRedirect(auth, googleProvider);
+            // Pop-up sign-in works on sites not hosted by Firebase (e.g. Vercel, localhost).
+            await signInWithPopup(auth, googleProvider);
         } catch (error) {
-            status.textContent = errorCodeMessage(error);
+            if (error?.code === "auth/popup-blocked") {
+                status.textContent = "Redirecting to Google…";
+                try {
+                    await signInWithRedirect(auth, googleProvider);
+                    return;
+                } catch (redirectError) {
+                    error = redirectError;
+                }
+            }
+            status.textContent = (error?.code === "auth/popup-closed-by-user" || error?.code === "auth/cancelled-popup-request")
+                ? "Sign-in was cancelled."
+                : errorCodeMessage(error);
             googleButton.disabled = false;
         }
     });

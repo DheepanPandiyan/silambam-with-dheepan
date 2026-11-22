@@ -790,11 +790,12 @@ footer {
 }
 
 /* Free course catalog entry */
-.free-course {
+.free-course,
+.my-courses {
     display: grid;
-    grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.2fr);
-    gap: clamp(2rem, 5vw, 4rem);
-    align-items: center;
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    align-items: start;
     padding: clamp(1.5rem, 5vw, 3.5rem);
     background: linear-gradient(145deg, rgba(22, 27, 34, 0.98), rgba(13, 17, 23, 0.98));
     border: 1px solid rgba(210, 153, 34, 0.25);
@@ -819,8 +820,67 @@ footer {
     font-size: clamp(1.7rem, 3vw, 2.4rem);
 }
 .free-course-info p {
-    margin-bottom: 1.5rem;
+    max-width: 760px;
     color: var(--text-secondary);
+}
+
+/* "Your Courses" (signed-in students) */
+.my-courses {
+    margin-bottom: 3rem;
+}
+.my-courses-header h2 {
+    margin-bottom: 0.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.7rem, 3vw, 2.4rem);
+}
+.my-courses-status {
+    color: var(--text-secondary);
+}
+.my-courses-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
+.my-courses-actions[hidden],
+.my-courses-list[hidden],
+#myCoursesContent[hidden] {
+    display: none;
+}
+.my-courses-actions .btn {
+    padding: 0.8rem 1.8rem;
+    font-size: 1rem;
+}
+#myCoursesContent {
+    display: grid;
+    gap: 1rem;
+}
+.my-courses-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+.my-course-chip {
+    padding: 0.6rem 1.1rem;
+    border: 1px solid rgba(210, 153, 34, 0.4);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-primary);
+    font: 600 0.95rem 'Outfit', sans-serif;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+.my-course-chip:hover {
+    color: var(--color-yellow);
+}
+.my-course-chip[aria-pressed="true"] {
+    background: var(--color-yellow);
+    border-color: var(--color-yellow);
+    color: #000;
+}
+.my-course-chip:focus-visible {
+    outline: 2px solid var(--color-yellow);
+    outline-offset: 2px;
 }
 .playlist-frame {
     width: 100%;
@@ -835,11 +895,6 @@ footer {
     width: 100%;
     height: 100%;
     border: 0;
-}
-@media (max-width: 768px) {
-    .free-course {
-        grid-template-columns: 1fr;
-    }
 }
 
 .catalog-offers {

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your DMA Silambam student profile.">
+    <title>My Profile | DMA Silambam</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="profile-menu.css">
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+    <nav class="navbar scrolled" id="navbar">
+        <div class="nav-container">
+            <a href="index.html#hero" class="logo" aria-label="DMA Silambam home">
+                <img src="logo.png" alt="" class="nav-logo-img">
+                DMA <span>SILAMBAM</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html#hero">Home</a></li>
+                <li><a href="courses.html">Courses</a></li>
+                <li><a href="login.html">Student Login</a></li>
+                <li><a href="index.html#contact" class="btn-outline">Contact Us</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger" aria-label="Open navigation menu">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="login-page">
+        <section class="login-card profile-card" aria-labelledby="profile-title">
+            <p class="catalog-eyebrow">DMA Silambam students</p>
+            <h1 id="profile-title">My Profile</h1>
+
+            <div id="profileSignedOut" hidden>
+                <p class="login-intro">Please sign in with Google to view and fill in your student details.</p>
+                <a class="btn btn-primary" href="login.html">Go to Student Login</a>
+            </div>
+
+            <p id="profileLoading" class="auth-status">Loading your profile…</p>
+
+            <form id="profileForm" class="profile-form" novalidate hidden>
+                <div class="profile-header">
+                    <img id="profilePhoto" alt="" referrerpolicy="no-referrer" hidden>
+                    <div>
+                        <p id="profileEmail" class="profile-email"></p>
+                        <p id="approvalBadge" class="approval-badge"></p>
+                    </div>
+                </div>
+
+                <fieldset>
+                    <legend>Student details</legend>
+                    <div class="profile-field profile-field-wide">
+                        <label for="fullName">Full name <span aria-hidden="true">*</span></label>
+                        <input id="fullName" name="fullName" type="text" autocomplete="name" maxlength="100" required>
+                    </div>
+                    <div class="profile-field">
+                        <label for="phone">Mobile / WhatsApp number <span aria-hidden="true">*</span></label>
+                        <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="+91 98765 43210" required>
+                    </div>
+                    <div class="profile-field">
+                        <label for="dateOfBirth">Date of birth <span aria-hidden="true">*</span></label>
+                        <input id="dateOfBirth" name="dateOfBirth" type="date" autocomplete="bday" required>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Address</legend>
+                    <div class="profile-field">
+                        <label for="city">City / town <span aria-hidden="true">*</span></label>
+                        <input id="city" name="city" type="text" autocomplete="address-level2" maxlength="80" required>
+                    </div>
+                    <div class="profile-field">
+                        <label for="state">State</label>
+                        <input id="state" name="state" type="text" autocomplete="address-level1" maxlength="80">
+                    </div>
+                    <div class="profile-field">
+                        <label for="country">Country</label>
+                        <input id="country" name="country" type="text" autocomplete="country-name" maxlength="80" value="India">
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Parent / guardian <span class="legend-note">(required if under 18)</span></legend>
+                    <div class="profile-field">
+                        <label for="parentName">Parent / guardian name</label>
+                        <input id="parentName" name="parentName" type="text" maxlength="100">
+                    </div>
+                    <div class="profile-field">
+                        <label for="parentPhone">Parent / guardian phone</label>
+                        <input id="parentPhone" name="parentPhone" type="tel" inputmode="tel" maxlength="20">
+                    </div>
+                </fieldset>
+
+                <p id="profileStatus" class="auth-status" role="status" aria-live="polite"></p>
+                <button id="profileSave" class="login-submit-button" type="submit">Save details</button>
+                <p class="login-consent">Your details are only visible to you and DMA Silambam.</p>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-bottom">
+            <p>&copy; 2026 DMA Silambam. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="script.js"></script>
+    <script type="module" src="profile.js"></script>
+    <script type="module" src="profile-menu.js"></script>
+</body>
+</html>

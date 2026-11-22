@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Free Silambam tutorials in English from DMA Silambam. Watch the course playlist on YouTube.">
+    <meta name="description" content="Free Silambam tutorials in English from DMA Silambam, plus your enrolled student courses.">
     <title>Courses | DMA Silambam</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="login-prompt.css">
+    <link rel="stylesheet" href="profile-menu.css">
+    <link rel="stylesheet" href="course-player.css">
 </head>
 <body>
     <nav class="navbar scrolled" id="navbar">
@@ -39,23 +41,26 @@
                 <p>Explore self-paced lessons and start learning authentic Silambam from home.</p>
             </header>
 
+            <section id="my-courses" class="my-courses" aria-labelledby="my-courses-title">
+                <div class="my-courses-header">
+                    <span class="free-course-badge">Students</span>
+                    <h2 id="my-courses-title">Your Courses</h2>
+                    <p id="myCoursesStatus" class="my-courses-status" role="status" aria-live="polite">Checking your student account…</p>
+                    <div id="myCoursesActions" class="my-courses-actions" hidden></div>
+                </div>
+                <div id="myCoursesContent" hidden>
+                    <div id="myCoursesList" class="my-courses-list" role="group" aria-label="Choose a course"></div>
+                    <div id="myCoursesPlayer"></div>
+                </div>
+            </section>
+
             <section class="free-course" aria-labelledby="free-course-title">
                 <div class="free-course-info">
                     <span class="free-course-badge">Free course</span>
                     <h2 id="free-course-title">Free Silambam Tutorials in English</h2>
-                    <p>Learn Silambam at your own pace with this free English-language video course. Choose a lesson from the playlist and follow along.</p>
-                    <a class="btn btn-primary" href="https://www.youtube.com/playlist?list=PLBGvJdSRBQ8k" target="_blank" rel="noopener">Open playlist on YouTube</a>
+                    <p>Learn Silambam at your own pace with this free English-language video course. Press play and follow along, then use <strong>Next tutorial</strong> to move to the next lesson.</p>
                 </div>
-                <div class="playlist-frame">
-                    <iframe
-                        src="https://www.youtube.com/embed/videoseries?list=PLBGvJdSRBQ8k"
-                        title="Free Silambam Tutorials in English YouTube playlist"
-                        loading="lazy"
-                        referrerpolicy="strict-origin-when-cross-origin"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowfullscreen>
-                    </iframe>
-                </div>
+                <div id="freeCoursePlayer" data-playlist="PLBGvJdSRBQ8k"></div>
             </section>
 
             <section class="catalog-offers" aria-labelledby="training-options-title">
@@ -130,5 +135,7 @@
     </footer>
     <script src="script.js"></script>
     <script type="module" src="student-login-prompt.js"></script>
+    <script type="module" src="profile-menu.js"></script>
+    <script type="module" src="courses.js"></script>
 </body>
 </html>
