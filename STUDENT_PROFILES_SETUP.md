@@ -52,13 +52,20 @@ Students can read only their own profile and assigned playlist documents. They c
 
 ## Students fill in their own details (My Profile)
 
-Every page has a profile icon at the top right. A signed-in student can open **My Profile** (`profile.html`) and fill in:
+Every page has a profile icon at the top right. A signed-in student opens **My Profile** (`profile.html`) and answers step by step:
 
-- full name, mobile/WhatsApp number, date of birth (required)
-- city (required), state, country
-- parent/guardian name and phone (required by the form for students under 18)
+1. **Old student or new student?** → saved as `studentType` = `old` / `new`
+2. Old students: **Online Silambam or Offline class (with Karate)?** → `oldStudentMode` = `online` / `offline`
 
-Saving creates or updates `studentProfiles/{their UID}` with these fields plus `email` and `updatedAt`. New students appear there without `approved`. To approve one, open the document in Firebase Console, add `approved` = `true` and their `allowedPlaylists`.
+| Branch | Fields saved |
+|---|---|
+| Old · online | `fullName`, `courseLevel` (`basic` / `intermediate`), `whatsapp`, `instructor` (`Dheepan` / `Bowya`) |
+| Old · offline | `fullName`, `location` (`Arimalam` / `Keelapaniyour` / `Onangudi`), `belt` (White … Black, Other), `parentWhatsapp` |
+| New | `fullName`, `age` (number), `gender`, `city`, `preferredLanguage` (`tamil` / `english`), `foundVia` (`instagram`, `youtube`, `whatsapp`, `friend`, `google`, `other`), `foundViaOther` (only when `other`) |
+
+Every profile also gets `email` and `updatedAt`. If a student changes their answer (for example from new to old), the fields from the other branch are removed.
+
+Saving creates or updates `studentProfiles/{their UID}`. New students appear there without `approved`. To approve one, open the document in Firebase Console, add `approved` = `true` and their `allowedPlaylists`. Every signed-in student gets the free course on the Courses page without approval.
 
 The Firestore rules stop students from setting `approved` or `allowedPlaylists` themselves. **After changing `firestore.rules`, paste it into Firestore Database → Rules again and click Publish**, or saving the form will fail with "permission denied".
 

@@ -38,7 +38,7 @@
             <h1 id="profile-title">My Profile</h1>
 
             <div id="profileSignedOut" hidden>
-                <p class="login-intro">Please sign in with Google to view and fill in your student details.</p>
+                <p class="login-intro">Please sign in with Google to fill in your student details.</p>
                 <a class="btn btn-primary" href="login.html">Go to Student Login</a>
             </div>
 
@@ -53,53 +53,163 @@
                     </div>
                 </div>
 
-                <fieldset>
-                    <legend>Student details</legend>
+                <!-- Step 1: old or new -->
+                <fieldset class="choice-step">
+                    <legend><span class="step-number">1</span> Are you an old student or a new student?</legend>
+                    <div class="choice-grid">
+                        <label class="choice-card">
+                            <input type="radio" name="studentType" value="old">
+                            <span class="choice-title">Old student</span>
+                            <span class="choice-text">I already learn with DMA Silambam</span>
+                        </label>
+                        <label class="choice-card">
+                            <input type="radio" name="studentType" value="new">
+                            <span class="choice-title">New student</span>
+                            <span class="choice-text">I am new to DMA Silambam</span>
+                        </label>
+                    </div>
+                </fieldset>
+
+                <!-- Step 2 (old students): online or offline -->
+                <fieldset class="choice-step" id="stepOldMode" hidden>
+                    <legend><span class="step-number">2</span> How do you learn with us?</legend>
+                    <div class="choice-grid">
+                        <label class="choice-card">
+                            <input type="radio" name="oldStudentMode" value="online">
+                            <span class="choice-title">Online Silambam</span>
+                            <span class="choice-text">Live or recorded online classes</span>
+                        </label>
+                        <label class="choice-card">
+                            <input type="radio" name="oldStudentMode" value="offline">
+                            <span class="choice-title">Offline class</span>
+                            <span class="choice-text">Silambam with Karate, in person</span>
+                        </label>
+                    </div>
+                </fieldset>
+
+                <!-- Online old student -->
+                <fieldset class="details-step" id="detailsOnline" data-branch="online" hidden>
+                    <legend><span class="step-number">3</span> Online student details</legend>
                     <div class="profile-field profile-field-wide">
-                        <label for="fullName">Full name <span aria-hidden="true">*</span></label>
-                        <input id="fullName" name="fullName" type="text" autocomplete="name" maxlength="100" required>
+                        <label for="onlineName">Name <span aria-hidden="true">*</span></label>
+                        <input id="onlineName" data-field="fullName" type="text" autocomplete="name" maxlength="100">
                     </div>
                     <div class="profile-field">
-                        <label for="phone">Mobile / WhatsApp number <span aria-hidden="true">*</span></label>
-                        <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="+91 98765 43210" required>
+                        <label for="courseLevel">Course you learned / are learning <span aria-hidden="true">*</span></label>
+                        <select id="courseLevel" data-field="courseLevel">
+                            <option value="">Choose…</option>
+                            <option value="basic">Basic</option>
+                            <option value="intermediate">Intermediate</option>
+                        </select>
                     </div>
                     <div class="profile-field">
-                        <label for="dateOfBirth">Date of birth <span aria-hidden="true">*</span></label>
-                        <input id="dateOfBirth" name="dateOfBirth" type="date" autocomplete="bday" required>
+                        <label for="onlineWhatsapp">WhatsApp mobile number <span aria-hidden="true">*</span></label>
+                        <input id="onlineWhatsapp" data-field="whatsapp" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="+91 98765 43210">
+                    </div>
+                    <div class="profile-field profile-field-wide">
+                        <label for="instructor">Instructor name <span aria-hidden="true">*</span></label>
+                        <select id="instructor" data-field="instructor">
+                            <option value="">Choose…</option>
+                            <option value="Dheepan">Dheepan</option>
+                            <option value="Bowya">Bowya</option>
+                        </select>
                     </div>
                 </fieldset>
 
-                <fieldset>
-                    <legend>Address</legend>
-                    <div class="profile-field">
-                        <label for="city">City / town <span aria-hidden="true">*</span></label>
-                        <input id="city" name="city" type="text" autocomplete="address-level2" maxlength="80" required>
+                <!-- Offline old student -->
+                <fieldset class="details-step" id="detailsOffline" data-branch="offline" hidden>
+                    <legend><span class="step-number">3</span> Offline class details</legend>
+                    <div class="profile-field profile-field-wide">
+                        <label for="offlineName">Name <span aria-hidden="true">*</span></label>
+                        <input id="offlineName" data-field="fullName" type="text" autocomplete="name" maxlength="100">
                     </div>
                     <div class="profile-field">
-                        <label for="state">State</label>
-                        <input id="state" name="state" type="text" autocomplete="address-level1" maxlength="80">
+                        <label for="location">Location <span aria-hidden="true">*</span></label>
+                        <select id="location" data-field="location">
+                            <option value="">Choose…</option>
+                            <option value="Arimalam">Arimalam</option>
+                            <option value="Keelapaniyour">Keelapaniyour</option>
+                            <option value="Onangudi">Onangudi</option>
+                        </select>
                     </div>
                     <div class="profile-field">
-                        <label for="country">Country</label>
-                        <input id="country" name="country" type="text" autocomplete="country-name" maxlength="80" value="India">
+                        <label for="belt">Belt <span aria-hidden="true">*</span></label>
+                        <select id="belt" data-field="belt">
+                            <option value="">Choose…</option>
+                            <option value="White">White</option>
+                            <option value="Yellow">Yellow</option>
+                            <option value="Orange">Orange</option>
+                            <option value="Green">Green</option>
+                            <option value="Blue">Blue</option>
+                            <option value="Purple">Purple</option>
+                            <option value="Brown">Brown</option>
+                            <option value="Black">Black</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="profile-field profile-field-wide">
+                        <label for="parentWhatsapp">Parent's WhatsApp number <span aria-hidden="true">*</span></label>
+                        <input id="parentWhatsapp" data-field="parentWhatsapp" type="tel" inputmode="tel" maxlength="20" placeholder="+91 98765 43210">
                     </div>
                 </fieldset>
 
-                <fieldset>
-                    <legend>Parent / guardian <span class="legend-note">(required if under 18)</span></legend>
-                    <div class="profile-field">
-                        <label for="parentName">Parent / guardian name</label>
-                        <input id="parentName" name="parentName" type="text" maxlength="100">
+                <!-- New student -->
+                <fieldset class="details-step" id="detailsNew" data-branch="new" hidden>
+                    <legend><span class="step-number">2</span> New student details</legend>
+                    <div class="profile-field profile-field-wide">
+                        <label for="newName">Name <span aria-hidden="true">*</span></label>
+                        <input id="newName" data-field="fullName" type="text" autocomplete="name" maxlength="100">
                     </div>
                     <div class="profile-field">
-                        <label for="parentPhone">Parent / guardian phone</label>
-                        <input id="parentPhone" name="parentPhone" type="tel" inputmode="tel" maxlength="20">
+                        <label for="age">Age <span aria-hidden="true">*</span></label>
+                        <input id="age" data-field="age" type="number" inputmode="numeric" min="3" max="100" step="1">
+                    </div>
+                    <div class="profile-field">
+                        <label for="gender">Gender <span aria-hidden="true">*</span></label>
+                        <select id="gender" data-field="gender">
+                            <option value="">Choose…</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                            <option value="prefer-not-to-say">Prefer not to say</option>
+                        </select>
+                    </div>
+                    <div class="profile-field">
+                        <label for="newCity">City <span aria-hidden="true">*</span></label>
+                        <input id="newCity" data-field="city" type="text" autocomplete="address-level2" maxlength="80">
+                    </div>
+                    <div class="profile-field">
+                        <label for="preferredLanguage">Preferred language to learn Silambam <span aria-hidden="true">*</span></label>
+                        <select id="preferredLanguage" data-field="preferredLanguage">
+                            <option value="">Choose…</option>
+                            <option value="tamil">Tamil</option>
+                            <option value="english">English</option>
+                        </select>
+                    </div>
+                    <div class="profile-field">
+                        <label for="foundVia">How did you find this page? <span aria-hidden="true">*</span></label>
+                        <select id="foundVia" data-field="foundVia">
+                            <option value="">Choose…</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="youtube">YouTube</option>
+                            <option value="whatsapp">WhatsApp</option>
+                            <option value="friend">Friend or family</option>
+                            <option value="google">Google search</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="profile-field" id="foundViaOtherField" hidden>
+                        <label for="foundViaOther">Please tell us where <span aria-hidden="true">*</span></label>
+                        <input id="foundViaOther" data-field="foundViaOther" type="text" maxlength="100">
                     </div>
                 </fieldset>
 
-                <p id="profileStatus" class="auth-status" role="status" aria-live="polite"></p>
-                <button id="profileSave" class="login-submit-button" type="submit">Save details</button>
-                <p class="login-consent">Your details are only visible to you and DMA Silambam.</p>
+                <div id="profileActions" class="profile-actions" hidden>
+                    <p id="profileStatus" class="auth-status" role="status" aria-live="polite"></p>
+                    <button id="profileSave" class="login-submit-button" type="submit">Save details</button>
+                    <a id="profileCoursesLink" class="btn btn-primary profile-courses-link" href="courses.html#my-courses" hidden>Go to My Courses</a>
+                    <p class="login-consent">Your details are only visible to you and DMA Silambam.</p>
+                </div>
             </form>
         </section>
     </main>

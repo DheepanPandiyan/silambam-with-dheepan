@@ -11,44 +11,79 @@ service cloud.firestore {
         && get(studentProfilePath(request.auth.uid)).data.approved == true;
     }
 
-    // Fields a student may fill in from profile.html. Must match TEXT_FIELDS in profile.js
-    // (plus email and updatedAt, which the page sets itself).
-    // `approved` and `allowedPlaylists` are NOT in this list, so only the project owner
-    // can set them in Firebase Console.
+    // ---- Student profile form (profile.html / profile.js) ----
+    // Students answer: old or new; old students pick online or offline.
+    // `approved` and `allowedPlaylists` are set only by the project owner in Firebase Console.
+
+    // Every field a student may add, change or remove. Must match profile.js.
+    // (phone, dateOfBirth, state, country, parentName, parentPhone are from the
+    // earlier form; students may only remove them.)
     function studentEditableFields() {
-      return ['fullName', 'phone', 'dateOfBirth', 'city', 'state', 'country',
-              'parentName', 'parentPhone', 'email', 'updatedAt'];
+      return ['studentType', 'oldStudentMode', 'fullName',
+              'courseLevel', 'whatsapp', 'instructor',
+              'location', 'belt', 'parentWhatsapp',
+              'age', 'gender', 'city', 'preferredLanguage', 'foundVia', 'foundViaOther',
+              'email', 'updatedAt',
+              'phone', 'dateOfBirth', 'state', 'country', 'parentName', 'parentPhone'];
     }
 
-    function optionalText(d, key, maxLength) {
-      return d.get(key, '') is string && d.get(key, '').size() <= maxLength;
+    // Fields that may exist on every profile, whichever branch was chosen.
+    function commonFields() {
+      return ['studentType', 'fullName', 'email', 'updatedAt', 'approved', 'allowedPlaylists'];
     }
 
-    function optionalPhone(d, key) {
-      return d.get(key, '') == '' || (d[key] is string && d[key].matches('^[+0-9 ()-]{7,20}$'));
+    function isPhone(value) {
+      return value is string && value.matches('^[+0-9 ()-]{7,20}$');
+    }
+
+    function validCommon(d) {
+      return d.fullName is string && d.fullName.size() > 0 && d.fullName.size() <= 100
+        && d.email == request.auth.token.email
+        && d.updatedAt == request.time;
+    }
+
+    // Old student, online Silambam
+    function validOnline(d) {
+      return d.studentType == 'old' && d.oldStudentMode == 'online'
+        && d.keys().hasOnly(commonFields().concat(['oldStudentMode', 'courseLevel', 'whatsapp', 'instructor']))
+        && d.courseLevel in ['basic', 'intermediate']
+        && isPhone(d.whatsapp)
+        && d.instructor in ['Dheepan', 'Bowya'];
+    }
+
+    // Old student, offline class with Karate
+    function validOffline(d) {
+      return d.studentType == 'old' && d.oldStudentMode == 'offline'
+        && d.keys().hasOnly(commonFields().concat(['oldStudentMode', 'location', 'belt', 'parentWhatsapp']))
+        && d.location in ['Arimalam', 'Keelapaniyour', 'Onangudi']
+        && d.belt in ['White', 'Yellow', 'Orange', 'Green', 'Blue', 'Purple', 'Brown', 'Black', 'Other']
+        && isPhone(d.parentWhatsapp);
+    }
+
+    // New student
+    function validNew(d) {
+      return d.studentType == 'new'
+        && d.keys().hasOnly(commonFields().concat(['age', 'gender', 'city', 'preferredLanguage', 'foundVia', 'foundViaOther']))
+        && d.age is int && d.age >= 3 && d.age <= 100
+        && d.gender in ['male', 'female', 'other', 'prefer-not-to-say']
+        && d.city is string && d.city.size() > 0 && d.city.size() <= 80
+        && d.preferredLanguage in ['tamil', 'english']
+        && d.foundVia in ['instagram', 'youtube', 'whatsapp', 'friend', 'google', 'other']
+        && d.get('foundViaOther', '') is string && d.get('foundViaOther', '').size() <= 100
+        && (d.foundVia != 'other' || d.get('foundViaOther', '').size() > 0);
     }
 
     function validStudentDetails(d) {
-      return d.fullName is string && d.fullName.size() > 0 && d.fullName.size() <= 100
-        && d.phone is string && d.phone.matches('^[+0-9 ()-]{7,20}$')
-        && d.dateOfBirth is string && d.dateOfBirth.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
-        && d.city is string && d.city.size() > 0 && d.city.size() <= 80
-        && optionalText(d, 'state', 80)
-        && optionalText(d, 'country', 80)
-        && optionalText(d, 'parentName', 100)
-        && optionalPhone(d, 'parentPhone')
-        && d.email == request.auth.token.email
-        && d.updatedAt == request.time;
+      return validCommon(d) && (validOnline(d) || validOffline(d) || validNew(d));
     }
 
     match /studentProfiles/{studentUid} {
       // A signed-in student can read only their own profile document.
       allow get: if request.auth != null && request.auth.uid == studentUid;
 
-      // A signed-in student can create their own profile with their details.
-      // They cannot include `approved` or `allowedPlaylists`.
+      // A student can create their own profile, without `approved` or `allowedPlaylists`.
       allow create: if request.auth != null && request.auth.uid == studentUid
-        && request.resource.data.keys().hasOnly(studentEditableFields())
+        && !request.resource.data.keys().hasAny(['approved', 'allowedPlaylists'])
         && validStudentDetails(request.resource.data);
 
       // A student can update their own details, but never `approved` or `allowedPlaylists`.

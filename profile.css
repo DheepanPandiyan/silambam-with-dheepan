@@ -12,8 +12,80 @@
 #profileSignedOut[hidden],
 .profile-form[hidden],
 #profileLoading[hidden],
-#profilePhoto[hidden] {
+#profilePhoto[hidden],
+.profile-form fieldset[hidden],
+.profile-field[hidden],
+.profile-actions[hidden],
+.profile-courses-link[hidden] {
     display: none;
+}
+
+/* Step choices (old/new, online/offline) */
+.profile-form .choice-step {
+    grid-template-columns: 1fr;
+}
+.step-number {
+    display: inline-grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    margin-right: 0.35rem;
+    border-radius: 50%;
+    background: var(--color-yellow);
+    color: #000;
+    font: 800 0.85rem 'Outfit', sans-serif;
+    vertical-align: middle;
+}
+.choice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+.choice-card {
+    position: relative;
+    display: grid;
+    gap: 0.25rem;
+    padding: 1rem 1rem 1rem 3rem;
+    border: 1px solid rgba(230, 237, 243, 0.2);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.02);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.choice-card:hover {
+    border-color: rgba(210, 153, 34, 0.6);
+}
+.choice-card input {
+    position: absolute;
+    top: 1.15rem;
+    left: 1rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin: 0;
+    accent-color: var(--color-yellow);
+}
+.choice-card input:focus-visible {
+    outline: 2px solid var(--color-yellow);
+    outline-offset: 3px;
+}
+.choice-card.is-selected {
+    border-color: var(--color-yellow);
+    background: rgba(210, 153, 34, 0.1);
+}
+.choice-title {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.choice-text {
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+}
+.profile-actions {
+    display: grid;
+    gap: 0.9rem;
+}
+.profile-courses-link {
+    width: 100%;
 }
 .profile-form {
     display: grid;
@@ -86,7 +158,8 @@
 .profile-field label span {
     color: var(--color-yellow);
 }
-.profile-field input {
+.profile-field input,
+.profile-field select {
     width: 100%;
     min-height: 48px;
     box-sizing: border-box;
@@ -98,11 +171,13 @@
     font: inherit;
     color-scheme: dark;
 }
-.profile-field input:focus {
+.profile-field input:focus,
+.profile-field select:focus {
     outline: 2px solid var(--color-yellow);
     outline-offset: 2px;
 }
-.profile-field input[aria-invalid="true"] {
+.profile-field input[aria-invalid="true"],
+.profile-field select[aria-invalid="true"] {
     border-color: #ff8c86;
 }
 .profile-form .auth-status {
@@ -118,5 +193,8 @@
     .profile-form fieldset {
         grid-template-columns: 1fr;
         padding: 1rem;
+    }
+    .choice-grid {
+        grid-template-columns: 1fr;
     }
 }
