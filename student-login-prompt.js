@@ -33,6 +33,7 @@ if (configured) {
         <section class="login-prompt-dialog" role="dialog" aria-modal="true" aria-labelledby="loginPromptTitle" aria-describedby="loginPromptDescription">
             <button class="login-prompt-close" type="button" aria-label="Close sign-in prompt">&times;</button>
             <div class="login-prompt-icon" aria-hidden="true">DMA</div>
+            <p class="login-prompt-offer">🎁 Sign in to get free course</p>
             <h2 id="loginPromptTitle">Are you a DMA Silambam student?</h2>
             <p id="loginPromptDescription">Sign in with Google to open your student account, or keep browsing the course catalog.</p>
             <p class="login-prompt-status" role="status" aria-live="polite"></p>
@@ -177,5 +178,5 @@ if (configured) {
     window.setTimeout(() => {
         delayElapsed = true;
         maybeOpenPrompt();
-    }, 15000);
+    }, 10000); // show the sign-in pop-up after 10 seconds
 }

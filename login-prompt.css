@@ -60,6 +60,17 @@
     margin-bottom: 1.5rem;
     color: var(--text-secondary);
 }
+.login-prompt-dialog .login-prompt-offer {
+    display: inline-block;
+    margin: 0 0 1rem;
+    padding: 0.45rem 1.1rem;
+    border-radius: 999px;
+    background: var(--color-yellow);
+    color: #000;
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
 .login-prompt-status {
     min-height: 1.5em;
     margin: 0.75rem 0;
