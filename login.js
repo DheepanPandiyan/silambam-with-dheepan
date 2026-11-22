@@ -1,33 +1,17 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
-import {
-    getAuth,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    sendPasswordResetEmail,
-    signOut
-} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, getRedirectResult, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 import { firebaseConfig } from "./firebase-config.js";
 
 const signInPanel = document.getElementById("loginSignIn");
 const accountPanel = document.getElementById("studentAccount");
-const signInForm = document.getElementById("emailPasswordSignIn");
-const emailInput = document.getElementById("studentLoginEmail");
-const passwordInput = document.getElementById("studentLoginPassword");
-const signInButton = document.getElementById("emailPasswordSignInButton");
-const resetPasswordButton = document.getElementById("resetPassword");
+const googleSignInButton = document.getElementById("googleSignIn");
 const signOutButton = document.getElementById("emailPasswordSignOut");
 const statusMessage = document.getElementById("authStatus");
 const accountStatusMessage = document.getElementById("accountStatus");
 const studentName = document.getElementById("studentName");
 const studentEmail = document.getElementById("studentEmail");
 const studentDateOfBirth = document.getElementById("studentDateOfBirth");
-const tutorialsPanel = document.getElementById("studentTutorials");
-const tutorialPlaylist = document.getElementById("tutorialPlaylist");
-const tutorialStatus = document.getElementById("tutorialStatus");
-const tutorialPlayerWrap = document.getElementById("tutorialPlayerWrap");
-const tutorialPlayer = document.getElementById("tutorialPlayer");
-const tutorialOpenLink = document.getElementById("tutorialOpenLink");
 
 function setStatus(message, tone = "info") {
     statusMessage.textContent = message;
@@ -39,214 +23,113 @@ function setStatus(message, tone = "info") {
 function showSignedOut() {
     signInPanel.hidden = false;
     accountPanel.hidden = true;
-    tutorialsPanel.hidden = true;
-    tutorialPlayer.removeAttribute("src");
-    passwordInput.value = "";
 }
 
 function describeAuthError(error) {
-    console.error("Firebase email/password sign-in error:", error);
+    console.error("Firebase Google sign-in error:", error);
     const code = typeof error?.code === "string" ? error.code : "unknown";
-    let message = "Could not sign in. Check your email and password, then try again.";
-    if (code === "auth/operation-not-allowed") {
-        message = "Email and password sign-in is not enabled in Firebase Authentication yet.";
-    } else if (code === "auth/invalid-api-key" || code === "auth/api-key-not-valid-please-pass-a-valid-api-key") {
-        message = "The Firebase API key is invalid. Check the web app configuration.";
-    } else if (code === "auth/network-request-failed") {
-        message = "Could not connect. Check your internet connection and try again.";
-    } else if (code === "auth/too-many-requests") {
-        message = "Too many attempts. Wait a little while, then try again.";
+    // Firebase reports this code with stray punctuation ("auth/api-key-not-valid.-please-pass-..."), so match by prefix.
+    if (code.startsWith("auth/api-key-not-valid")) {
+        return `The Firebase API key is invalid. Replace it in firebase-config.js using your Firebase web app settings. (Error code: ${code})`;
     }
-    return `${message} (Error code: ${code})`;
+    const messages = {
+        "auth/operation-not-allowed": "Google sign-in is not enabled in Firebase Authentication yet.",
+        "auth/invalid-api-key": "The Firebase API key is invalid. Replace it in firebase-config.js using your Firebase web app settings.",
+        "auth/api-key-not-valid-please-pass-a-valid-api-key": "The Firebase API key is invalid. Replace it in firebase-config.js using your Firebase web app settings.",
+        "auth/unauthorized-domain": "This website domain is not authorized in Firebase yet.",
+        "auth/network-request-failed": "Could not connect. Check your internet connection and try again.",
+        "auth/too-many-requests": "Too many attempts. Wait a little while, then try again."
+    };
+    return `${messages[code] || "Could not sign in with Google. Please try again."} (Error code: ${code})`;
 }
 
 function formatDateOfBirth(value) {
-    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        return "";
-    }
+    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return "";
     const [year, month, day] = value.split("-");
     return `${day}/${month}/${year}`;
-}
-
-function showPlaylist(playlist) {
-    const embedUrl = new URL("https://www.youtube-nocookie.com/embed");
-    embedUrl.searchParams.set("listType", "playlist");
-    embedUrl.searchParams.set("list", playlist.youtubePlaylistId);
-
-    const playlistUrl = new URL("https://www.youtube.com/playlist");
-    playlistUrl.searchParams.set("list", playlist.youtubePlaylistId);
-
-    tutorialPlayer.src = embedUrl.toString();
-    tutorialPlayer.title = playlist.title;
-    tutorialOpenLink.href = playlistUrl.toString();
-    tutorialPlayerWrap.hidden = false;
-    tutorialStatus.textContent = `${playlist.title} — choose a video using the playlist controls.`;
-}
-
-async function loadStudentPlaylists(db, allowedPlaylists) {
-    tutorialsPanel.hidden = false;
-    tutorialPlayerWrap.hidden = true;
-    tutorialPlayer.removeAttribute("src");
-    tutorialPlaylist.replaceChildren();
-
-    const playlistIds = Array.isArray(allowedPlaylists)
-        ? [...new Set(allowedPlaylists.filter((id) => typeof id === "string" && /^[a-zA-Z0-9_-]+$/.test(id)))]
-        : [];
-
-    if (playlistIds.length === 0) {
-        tutorialPlaylist.disabled = true;
-        tutorialPlaylist.add(new Option("No playlists assigned", ""));
-        tutorialStatus.textContent = "Ask DMA Silambam to assign playlists to your account.";
-        return;
-    }
-
-    tutorialPlaylist.disabled = true;
-    tutorialPlaylist.add(new Option("Loading your playlists…", ""));
-    tutorialStatus.textContent = "";
-
-    try {
-        const snapshots = await Promise.all(playlistIds.map((playlistId) =>
-            getDoc(doc(db, "tutorialPlaylists", playlistId))
-        ));
-        const playlists = snapshots
-            .filter((snapshot) => snapshot.exists())
-            .map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }))
-            .filter((playlist) =>
-                typeof playlist.title === "string"
-                && playlist.title.trim().length > 0
-                && typeof playlist.youtubePlaylistId === "string"
-                && /^[a-zA-Z0-9_-]{10,80}$/.test(playlist.youtubePlaylistId)
-            );
-
-        tutorialPlaylist.replaceChildren();
-        if (playlists.length === 0) {
-            tutorialPlaylist.disabled = true;
-            tutorialPlaylist.add(new Option("No playlists available", ""));
-            tutorialStatus.textContent = "No assigned playlists are available yet.";
-            return;
-        }
-
-        playlists.forEach((playlist) => {
-            tutorialPlaylist.add(new Option(playlist.title, playlist.id));
-        });
-        tutorialPlaylist.disabled = false;
-        tutorialPlaylist.onchange = () => {
-            const selected = playlists.find((playlist) => playlist.id === tutorialPlaylist.value);
-            if (selected) showPlaylist(selected);
-        };
-        showPlaylist(playlists[0]);
-    } catch (error) {
-        console.error("Could not load assigned playlists:", error);
-        tutorialPlaylist.replaceChildren(new Option("Playlists unavailable", ""));
-        tutorialPlaylist.disabled = true;
-        tutorialStatus.textContent = "Could not load playlists. Please try again later.";
-    }
 }
 
 async function showSignedInUser(user, db) {
     signInPanel.hidden = true;
     accountPanel.hidden = false;
-    tutorialsPanel.hidden = true;
     studentName.textContent = user.displayName || "DMA Silambam student";
     studentEmail.textContent = user.email || "";
     studentDateOfBirth.hidden = true;
     studentDateOfBirth.textContent = "";
-
     setStatus("Checking your student profile…");
     try {
-        const profileSnapshot = await getDoc(doc(db, "studentProfiles", user.uid));
-        if (!profileSnapshot.exists() || profileSnapshot.data().approved !== true) {
-            setStatus("Your account is not approved yet. Please contact DMA Silambam.", "info");
+        const snapshot = await getDoc(doc(db, "studentProfiles", user.uid));
+        if (!snapshot.exists()) {
+            // New student: take them to the details form.
+            setStatus("Welcome! Taking you to My Profile to fill in your details…");
+            window.location.href = "profile.html";
             return;
         }
-
-        const profile = profileSnapshot.data();
-        const dateOfBirth = formatDateOfBirth(profile.dateOfBirth);
+        if (snapshot.data().approved !== true) {
+            setStatus("Thanks for sending your details. Your account is waiting for approval from DMA Silambam.");
+            return;
+        }
+        const profile = snapshot.data();
         studentName.textContent = profile.fullName || user.displayName || "DMA Silambam student";
+        const dateOfBirth = formatDateOfBirth(profile.dateOfBirth);
         if (dateOfBirth) {
             studentDateOfBirth.textContent = `Date of birth: ${dateOfBirth}`;
             studentDateOfBirth.hidden = false;
         }
-        setStatus("Your student profile is approved.", "success");
-        await loadStudentPlaylists(db, profile.allowedPlaylists);
+        setStatus("Your student profile is approved. Your courses are on the Courses page.", "success");
     } catch (error) {
         console.error("Could not load student profile:", error);
-        setStatus("You’re signed in, but your student profile could not be loaded. Please try again later.", "error");
+        setStatus("You are signed in, but your student profile could not be loaded. Please try again later.", "error");
     }
 }
 
-const configured = ["apiKey", "authDomain", "projectId", "appId"].every((key) => {
-    const value = firebaseConfig[key];
-    return typeof value === "string" && value.length > 0 && !value.startsWith("REPLACE_");
-});
+const configured = ["apiKey", "authDomain", "projectId", "appId"].every((key) => typeof firebaseConfig[key] === "string" && firebaseConfig[key].length > 0 && !firebaseConfig[key].startsWith("REPLACE_"));
 
 if (!configured) {
-    signInButton.disabled = true;
-    resetPasswordButton.disabled = true;
+    googleSignInButton.disabled = true;
     setStatus("Student sign-in is not connected yet. Firebase setup is needed first.");
 } else {
-    const app = initializeApp(firebaseConfig);
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
-    setStatus("Sign in with the student email and password provided by DMA Silambam.");
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            showSignedInUser(user, db);
-        } else {
-            showSignedOut();
-        }
-    });
-
-    signInButton.disabled = false;
-    resetPasswordButton.disabled = false;
-
-    signInForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-        signInButton.disabled = true;
-        resetPasswordButton.disabled = true;
-        setStatus("Signing in…");
-
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    setStatus("Choose Continue with Google to sign in.");
+    onAuthStateChanged(auth, (user) => user ? showSignedInUser(user, db) : showSignedOut());
+    googleSignInButton.disabled = false;
+    googleSignInButton.addEventListener("click", async () => {
+        googleSignInButton.disabled = true;
+        setStatus("Opening Google sign-in…");
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            // Pop-up sign-in works on sites not hosted by Firebase (e.g. Vercel, localhost).
+            // Redirect sign-in loses the result there because browsers partition third-party storage.
+            await signInWithPopup(auth, provider);
         } catch (error) {
-            setStatus(describeAuthError(error), "error");
-        } finally {
-            signInButton.disabled = false;
-            resetPasswordButton.disabled = false;
+            if (error?.code === "auth/popup-blocked") {
+                // Pop-ups blocked: fall back to the full-page redirect.
+                setStatus("Redirecting to Google…");
+                try {
+                    await signInWithRedirect(auth, provider);
+                    return;
+                } catch (redirectError) {
+                    error = redirectError;
+                }
+            }
+            if (error?.code === "auth/popup-closed-by-user" || error?.code === "auth/cancelled-popup-request") {
+                setStatus("Sign-in was cancelled. Choose Continue with Google to try again.");
+            } else {
+                setStatus(describeAuthError(error), "error");
+            }
+            googleSignInButton.disabled = false;
         }
     });
-
-    resetPasswordButton.addEventListener("click", async () => {
-        const email = emailInput.value.trim();
-        if (!email) {
-            setStatus("Enter your student account email first, then choose Forgot password.");
-            emailInput.focus();
-            return;
-        }
-
-        resetPasswordButton.disabled = true;
-        signInButton.disabled = true;
-        setStatus("Sending password reset instructions…");
-        try {
-            await sendPasswordResetEmail(auth, email);
-            setStatus("If an account exists for this email, password reset instructions have been sent.", "success");
-        } catch (error) {
-            setStatus(describeAuthError(error), "error");
-        } finally {
-            resetPasswordButton.disabled = false;
-            signInButton.disabled = false;
-        }
-    });
-
+    getRedirectResult(auth).catch((error) => setStatus(describeAuthError(error), "error"));
     signOutButton.addEventListener("click", async () => {
         signOutButton.disabled = true;
         try {
             await signOut(auth);
-            setStatus("You’ve been signed out.");
-        } catch (error) {
+            setStatus("You have been signed out.");
+        } catch {
             setStatus("Could not sign out. Please try again.", "error");
         } finally {
             signOutButton.disabled = false;

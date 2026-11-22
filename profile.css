@@ -1,0 +1,122 @@
+.profile-card {
+    text-align: left;
+}
+.profile-card > .catalog-eyebrow,
+.profile-card > h1 {
+    text-align: center;
+}
+#profileSignedOut,
+#profileLoading {
+    text-align: center;
+}
+#profileSignedOut[hidden],
+.profile-form[hidden],
+#profileLoading[hidden],
+#profilePhoto[hidden] {
+    display: none;
+}
+.profile-form {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.profile-header img {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 2px solid rgba(210, 153, 34, 0.6);
+    object-fit: cover;
+}
+.profile-email {
+    color: var(--text-secondary);
+    overflow-wrap: anywhere;
+}
+.approval-badge {
+    display: inline-block;
+    margin-top: 0.35rem;
+    padding: 0.2rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: rgba(210, 153, 34, 0.15);
+    color: var(--color-yellow);
+}
+.approval-badge[data-state="approved"] {
+    background: var(--color-green-glow);
+    color: #56d364;
+}
+.profile-form fieldset {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 1.25rem;
+    border: 1px solid rgba(210, 153, 34, 0.25);
+    border-radius: 16px;
+}
+.profile-form legend {
+    padding: 0 0.5rem;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+}
+.legend-note {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+.profile-field {
+    display: grid;
+    gap: 0.4rem;
+}
+.profile-field-wide {
+    grid-column: 1 / -1;
+}
+.profile-field label {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+}
+.profile-field label span {
+    color: var(--color-yellow);
+}
+.profile-field input {
+    width: 100%;
+    min-height: 48px;
+    box-sizing: border-box;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid rgba(230, 237, 243, 0.25);
+    border-radius: 10px;
+    background: #0d1117;
+    color: var(--text-primary);
+    font: inherit;
+    color-scheme: dark;
+}
+.profile-field input:focus {
+    outline: 2px solid var(--color-yellow);
+    outline-offset: 2px;
+}
+.profile-field input[aria-invalid="true"] {
+    border-color: #ff8c86;
+}
+.profile-form .auth-status {
+    margin: 0;
+    text-align: center;
+}
+.profile-form .login-consent {
+    margin-top: 0;
+    text-align: center;
+}
+
+@media (max-width: 640px) {
+    .profile-form fieldset {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+    }
+}

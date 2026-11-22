@@ -1,0 +1,201 @@
+/* Course video player with custom controls */
+.course-player {
+    display: grid;
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    background: #000;
+}
+.cp-screen {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+}
+.cp-screen iframe,
+.cp-screen .cp-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+.cp-now {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.75rem;
+    padding: 0.85rem 1rem 0.4rem;
+    background: #11161d;
+}
+.cp-count {
+    color: var(--color-yellow);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.cp-title {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    overflow-wrap: anywhere;
+}
+.cp-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem 0.9rem;
+    background: #11161d;
+}
+.cp-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.cp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-width: 42px;
+    height: 42px;
+    padding: 0 0.6rem;
+    border: 1px solid rgba(230, 237, 243, 0.18);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+    font: 600 0.92rem 'Outfit', sans-serif;
+    cursor: pointer;
+    transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+}
+.cp-btn svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+    flex-shrink: 0;
+}
+.cp-btn:not(:disabled):hover {
+    border-color: var(--color-yellow);
+    color: var(--color-yellow);
+}
+.cp-btn:focus-visible,
+.cp-speed-select:focus-visible,
+.cp-volume-range:focus-visible {
+    outline: 2px solid var(--color-yellow);
+    outline-offset: 2px;
+}
+.cp-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.cp-btn[hidden] {
+    display: none;
+}
+.cp-play {
+    background: var(--color-yellow);
+    border-color: var(--color-yellow);
+    color: #000;
+}
+.cp-play:not(:disabled):hover {
+    color: #000;
+    background: #e6ad35;
+}
+.cp-next-wide {
+    padding: 0 0.85rem;
+}
+.cp-volume {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.cp-volume-range {
+    width: 90px;
+    accent-color: var(--color-yellow);
+    cursor: pointer;
+}
+.cp-speed {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+.cp-speed-select {
+    height: 42px;
+    padding: 0 0.5rem;
+    border: 1px solid rgba(230, 237, 243, 0.18);
+    border-radius: 10px;
+    background: #0d1117;
+    color: var(--text-primary);
+    font: 600 0.9rem 'Outfit', sans-serif;
+    color-scheme: dark;
+    cursor: pointer;
+}
+
+/* Full screen: video fills the screen, control bar stays at the bottom */
+.course-player:fullscreen {
+    display: flex;
+    flex-direction: column;
+    border: 0;
+    border-radius: 0;
+}
+.course-player:fullscreen .cp-screen {
+    flex: 1;
+    aspect-ratio: auto;
+}
+.course-player:-webkit-full-screen {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+.course-player:-webkit-full-screen .cp-screen {
+    flex: 1;
+    aspect-ratio: auto;
+}
+
+@media (max-width: 560px) {
+    .free-course,
+    .my-courses {
+        padding: 1rem;
+    }
+    .cp-now {
+        padding: 0.75rem 0.75rem 0.35rem;
+    }
+    .cp-controls {
+        padding: 0.5rem 0.6rem 0.75rem;
+        gap: 0.5rem;
+    }
+    .cp-group {
+        width: 100%;
+        min-width: 0;
+        gap: 0.4rem;
+        justify-content: space-between;
+    }
+    .cp-btn {
+        min-width: 38px;
+        height: 38px;
+        padding: 0 0.45rem;
+    }
+    .cp-next-wide {
+        flex: 1;
+    }
+    .cp-volume {
+        flex: 1;
+        min-width: 0;
+    }
+    .cp-volume-range {
+        width: 100%;
+        min-width: 40px;
+    }
+    .cp-speed span {
+        display: none;
+    }
+    .cp-speed-select {
+        height: 38px;
+    }
+}

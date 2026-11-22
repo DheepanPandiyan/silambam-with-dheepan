@@ -28,7 +28,7 @@ For each playlist you want students to access:
    - `title` — string, such as `Silambam Basics`
    - `youtubePlaylistId` — string, the playlist ID from the YouTube playlist URL. For example, in `https://www.youtube.com/playlist?list=PLabc123...`, copy the value after `list=`.
 
-The student portal shows a dropdown for assigned playlists. The selected playlist opens in an embedded YouTube player with playlist controls, so the student can choose a video. The link below it opens the full playlist on YouTube.
+Approved students see their assigned playlists under **Your Courses** on the Courses page (`courses.html#my-courses`). Each playlist plays in the site's own player with Previous / Next tutorial, volume, speed and full-screen controls. If a student has more than one course, buttons above the player let them switch.
 
 Unlisted videos and playlists can be watched or shared by anyone who gets the link. This controls which playlists the site displays to a student; it does not prevent link sharing.
 
@@ -49,6 +49,18 @@ The student can then sign in at the website using that email and Firebase passwo
 Each student's playlist array can be different. To revoke a playlist, remove its ID from `allowedPlaylists`. To suspend a student, set `approved` to `false`.
 
 Students can read only their own profile and assigned playlist documents. They cannot list or edit records. Project administrators manage the accounts and records in Firebase Console.
+
+## Students fill in their own details (My Profile)
+
+Every page has a profile icon at the top right. A signed-in student can open **My Profile** (`profile.html`) and fill in:
+
+- full name, mobile/WhatsApp number, date of birth (required)
+- city (required), state, country
+- parent/guardian name and phone (required by the form for students under 18)
+
+Saving creates or updates `studentProfiles/{their UID}` with these fields plus `email` and `updatedAt`. New students appear there without `approved`. To approve one, open the document in Firebase Console, add `approved` = `true` and their `allowedPlaylists`.
+
+The Firestore rules stop students from setting `approved` or `allowedPlaylists` themselves. **After changing `firestore.rules`, paste it into Firestore Database → Rules again and click Publish**, or saving the form will fail with "permission denied".
 
 ## Privacy
 
